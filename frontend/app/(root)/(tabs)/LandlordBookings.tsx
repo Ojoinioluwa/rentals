@@ -7,7 +7,7 @@ import {
 import { Booking } from "@/types/Booking.types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -31,14 +31,14 @@ import Toast from "react-native-toast-message";
 // Main LandlordBookingsScreen Component
 const LandlordBookingsScreen: React.FC = () => {
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(10);
+  const [limit] = useState<number>(10);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalBookings, setTotalBookings] = useState<number>(0);
   const [isProcessingAction, setIsProcessingAction] = useState<boolean>(false); // For approve/reject actions
 
   // Filter states
   const [showFilters, setShowFilters] = useState<boolean>(false);
-  const [statusFilter, setStatusFilter] = useState<Booking["status"] | "">("");
+  const [status, setStatus] = useState<Booking["status"] | "">("");
 
   const router = useRouter();
 
@@ -54,13 +54,10 @@ const LandlordBookingsScreen: React.FC = () => {
     isLoading,
     refetch,
     error,
-    isError,
   } = useQuery({
-    queryKey: ["LandlordBookings"],
-    queryFn: getLandlordBookings,
+    queryKey: ["LandlordBookings", status],
+    queryFn: () => getLandlordBookings(status, limit, page),
   });
-
-  console.log(bookings);
 
   // Animation for filter section
   const filterHeight = useSharedValue(0);
@@ -150,6 +147,10 @@ const LandlordBookingsScreen: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    setTotalBookings(bookings?.length);
+  }, [bookings]);
+
   const handleBookingDetailsPress = (bookingId: string) => {
     router.push({
       pathname: "/BookingDetailsLandlord",
@@ -211,9 +212,9 @@ const LandlordBookingsScreen: React.FC = () => {
               </Text>
               <View className="flex-row flex-wrap">
                 <TouchableOpacity
-                  onPress={() => setStatusFilter("")}
+                  onPress={() => setStatus("")}
                   className={`px-3 py-2 m-1 rounded-full border ${
-                    statusFilter === ""
+                    status === ""
                       ? "bg-blue-100 border-blue-500"
                       : "bg-gray-100 border-gray-300"
                   }`}
@@ -221,7 +222,7 @@ const LandlordBookingsScreen: React.FC = () => {
                 >
                   <Text
                     className={`text-sm font-medium ${
-                      statusFilter === "" ? "text-blue-700" : "text-gray-700"
+                      status === "" ? "text-blue-700" : "text-gray-700"
                     }`}
                   >
                     All
@@ -230,11 +231,9 @@ const LandlordBookingsScreen: React.FC = () => {
                 {allowedStatuses.map((status) => (
                   <TouchableOpacity
                     key={status}
-                    onPress={() =>
-                      setStatusFilter(statusFilter === status ? "" : status)
-                    }
+                    onPress={() => setStatus(status === status ? "" : status)}
                     className={`px-3 py-2 m-1 rounded-full border ${
-                      statusFilter === status
+                      status === status
                         ? "bg-blue-100 border-blue-500"
                         : "bg-gray-100 border-gray-300"
                     }`}
@@ -242,9 +241,7 @@ const LandlordBookingsScreen: React.FC = () => {
                   >
                     <Text
                       className={`text-sm font-medium capitalize ${
-                        statusFilter === status
-                          ? "text-blue-700"
-                          : "text-gray-700"
+                        status === status ? "text-blue-700" : "text-gray-700"
                       }`}
                     >
                       {status}

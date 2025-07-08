@@ -32,7 +32,7 @@ app.use(helmet());
 app.use("/api/v1", userRouter)
 app.use("/api/v1/bookings", bookingRouter);
 app.use("/api/v1/properties/landlord", propertyRouter);
-app.use("/api/properties", publicPropertyRouter);
+app.use("/api/v1/properties", publicPropertyRouter);
 
 
 

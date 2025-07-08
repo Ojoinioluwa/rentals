@@ -1,9 +1,8 @@
 import { DetailItem } from "@/components/DetailItem";
-import {
-  Property,
-  TenantPropertyDetailsScreenProps,
-} from "@/types/property.types";
-import React, { useEffect, useState } from "react";
+import { getPropertyAllById } from "@/services/property/propertyService";
+import { useQuery } from "@tanstack/react-query";
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -20,16 +19,12 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const TenantPropertyDetailsScreen: React.FC<
-  TenantPropertyDetailsScreenProps
-> = ({ onGoBack, onBookNow }) => {
-  const [property, setProperty] = useState<Property | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+const TenantPropertyDetailsScreen: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
 
-  // ! TODO: Ensure to make changes this is just for demo
-  const propertyId = "123344";
+  const { id } = useLocalSearchParams() as { id: string };
+
+  const propertyId = id;
 
   // Animation for image carousel
   const imageOpacity = useSharedValue(1);
@@ -39,74 +34,12 @@ const TenantPropertyDetailsScreen: React.FC<
     };
   });
 
-  // Simulate fetching data for a single property (no landlord filter)
-  useEffect(() => {
-    const fetchSingleProperty = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        // Simulate API call with delay
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ["PropertyDetailsTenant", propertyId],
+    queryFn: () => getPropertyAllById(propertyId),
+  });
 
-        // Mock data for a single property (accessible to any tenant)
-        if (propertyId === "123344") {
-          setProperty({
-            _id: "123344",
-            title: "Modern City Loft",
-            description:
-              "A stylish and compact loft apartment in a vibrant city center. Ideal for young professionals seeking convenience and urban living.",
-            propertyType: "studio",
-            bedrooms: 0, // Studio
-            bathrooms: 1,
-            toilets: 1,
-            furnished: true,
-            price: 250000,
-            billingCycle: "monthly",
-            fees: { agency: 15000, caution: 30000 },
-            features: ["Electricity", "Water Supply", "Security", "Elevator"],
-            images: [
-              "https://placehold.co/600x400/ADD8E6/000000?text=Loft%20Interior",
-              "https://placehold.co/600x400/87CEEB/000000?text=Kitchenette",
-              "https://placehold.co/600x400/4682B4/FFFFFF?text=Bathroom",
-            ],
-            location: {
-              address: "Unit 5, Urban Residences",
-              city: "Lagos",
-              state: "Lagos State",
-              country: "Nigeria",
-              coordinates: [3.3958, 6.5412],
-            },
-            isAvailable: true,
-            availableFrom: new Date("2025-08-15T00:00:00Z"),
-            landlord: {
-              _id: "landlord-xyz",
-              firstName: "Michael",
-              lastName: "Brown",
-              email: "michael.brown@example.com",
-            },
-          });
-        } else {
-          setError("Property not found.");
-        }
-
-        // // Actual useQuery implementation (uncomment and replace with your API)
-        // const response = await fetch(`/api/property/${propertyId}`); // No landlord filter here
-        // if (!response.ok) {
-        //   throw new Error('Failed to fetch property details');
-        // }
-        // const data = await response.json();
-        // setProperty(data.property);
-        // Toast.show({ type: 'success', text1: data.message });
-      } catch (err: any) {
-        setError(err.message || "Failed to load property details.");
-        // Toast.show({ type: 'error', text1: err.message || 'Failed to load property details.' });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchSingleProperty();
-  }, [propertyId]);
+  const property = data?.property;
 
   const handleNextImage = () => {
     if (property && property.images.length > 0) {
@@ -145,10 +78,10 @@ const TenantPropertyDetailsScreen: React.FC<
     return (
       <SafeAreaView className="flex-1 bg-blue-50 justify-center items-center p-5">
         <Text className="text-red-500 text-lg text-center mb-4">
-          {error || "Property not found."}
+          {error instanceof Error ? error.message : "Property not found."}
         </Text>
         <TouchableOpacity
-          onPress={onGoBack}
+          onPress={() => router.back()}
           className="bg-blue-600 py-3 px-6 rounded-lg shadow-md"
         >
           <Text className="text-white text-base font-semibold">Go Back</Text>
@@ -163,7 +96,7 @@ const TenantPropertyDetailsScreen: React.FC<
         {/* Back Button */}
         <Animated.View entering={FadeIn.delay(200).duration(500)}>
           <TouchableOpacity
-            onPress={onGoBack}
+            onPress={() => router.back()}
             className="absolute top-4 left-4 z-10 bg-blue-600 p-3 rounded-full shadow-lg"
           >
             <Text className="text-white text-xl">⬅️</Text>
@@ -198,7 +131,7 @@ const TenantPropertyDetailsScreen: React.FC<
                     <Text className="text-white text-lg">▶️</Text>
                   </TouchableOpacity>
                   <View className="absolute bottom-2 left-0 right-0 flex-row justify-center">
-                    {property.images.map((_, index) => (
+                    {property.images.map((_: string, index: number) => (
                       <View
                         key={index}
                         className={`w-2 h-2 rounded-full mx-1 ${
@@ -333,7 +266,7 @@ const TenantPropertyDetailsScreen: React.FC<
                 Features
               </Text>
               <View className="flex-row flex-wrap">
-                {property.features.map((feature, index) => (
+                {property.features.map((feature: string, index: number) => (
                   <View
                     key={index}
                     className="bg-blue-100 rounded-full px-3 py-1 m-1"
@@ -391,13 +324,18 @@ const TenantPropertyDetailsScreen: React.FC<
           </Animated.View>
 
           {/* Book Now Button */}
-          {property.isAvailable && onBookNow && (
+          {property.isAvailable && (
             <Animated.View
               entering={FadeInUp.delay(1100).duration(600)}
               className="mb-10"
             >
               <TouchableOpacity
-                onPress={() => onBookNow(property._id)}
+                onPress={() =>
+                  router.push({
+                    pathname: "/CreateBooking",
+                    params: { id: property._id },
+                  })
+                }
                 className="bg-green-500 py-4 rounded-xl flex-row items-center justify-center shadow-md"
               >
                 <Text className="text-white text-lg font-bold mr-2">

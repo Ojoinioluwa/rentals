@@ -27,7 +27,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const MyPropertiesScreen: React.FC = () => {
   // const [properties, setProperties] = useState<Property[]>([]);
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(10);
+  const [limit] = useState<number>(10);
   const [totalPages, setTotalPages] = useState<number>(1);
   const router = useRouter();
 
@@ -303,7 +303,7 @@ const MyPropertiesScreen: React.FC = () => {
               Try adjusting your filters or adding new properties.
             </Text>
             <TouchableOpacity
-              onPress={() => console.log("Navigate to Add Property")}
+              onPress={() => router.push("/AddProperty")}
               className="bg-blue-600 py-3 px-6 rounded-lg mt-4"
             >
               <Text className="text-white text-base">Add New Property</Text>

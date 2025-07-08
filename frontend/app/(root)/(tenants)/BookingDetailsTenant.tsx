@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { getBooking } from "@/services/bookings/bookingsService";
+import { Booking } from "@/types/Booking.types";
+import { useQuery } from "@tanstack/react-query";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
-  Dimensions,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -15,95 +18,14 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-// import { useQuery } from '@tanstack/react-query'; // Commented out as requested
-// import Toast from 'react-native-toast-message'; // For displaying messages
 
-const { width } = Dimensions.get("window");
-
-// Define types for populated fields based on your controller
-interface LandlordDetails {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
-
-interface PropertyDetailsForBooking {
-  _id: string;
-  title: string;
-  propertyType: string;
-  description: string; // Added description based on previous property types
-  images: string[]; // Added images for display
-  fees: {
-    agency?: number;
-    caution: number;
-  };
-  price: number;
-  location: {
-    address: string;
-    city: string;
-    state: string;
-    country: string;
-    coordinates: [number, number];
-  };
-}
-
-// Define the type for a Booking, matching your Mongoose schema (with populated fields)
-interface Booking {
-  _id: string;
-  property: PropertyDetailsForBooking;
-  tenant: string;
-  landlord: LandlordDetails;
-  message?: string;
-  status: "pending" | "approved" | "rejected" | "cancelled";
-  rentStart: Date;
-  rentEnd: Date;
-  isPaid: boolean;
-  createdAt: Date;
-}
-
-interface BookingDetailsScreenProps {
-  bookingId: string; // The ID of the booking to display
-  onGoBack?: () => void; // Optional callback to navigate back
-}
-
-// Helper component for detail items (reused from PropertyDetailsScreen)
-interface DetailItemProps {
-  icon: string;
-  label: string;
-  value: string | number;
-  color?: string; // Tailwind color class for value
-}
-
-const DetailItem: React.FC<DetailItemProps> = ({
-  icon,
-  label,
-  value,
-  color,
-}) => (
-  <View className="w-1/2 px-2 mb-3">
-    <View className="flex-row items-center">
-      <Text className="text-lg mr-2">{icon}</Text>
-      <View>
-        <Text className="text-gray-500 text-sm">{label}</Text>
-        <Text
-          className={`text-gray-800 text-base font-semibold ${color || ""}`}
-        >
-          {value}
-        </Text>
-      </View>
-    </View>
-  </View>
-);
-
-const BookingDetailsScreen: React.FC<BookingDetailsScreenProps> = ({
-  bookingId,
-  onGoBack,
-}) => {
-  const [booking, setBooking] = useState<Booking | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+const BookingDetailsScreen: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+  const { id } = useLocalSearchParams() as { id: string };
+
+  const bookingId = id;
+
+  const router = useRouter();
 
   // Animation for image carousel
   const imageOpacity = useSharedValue(1);
@@ -113,78 +35,12 @@ const BookingDetailsScreen: React.FC<BookingDetailsScreenProps> = ({
     };
   });
 
-  // Simulate fetching data
-  useEffect(() => {
-    const fetchSingleBooking = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        // Simulate API call with delay
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["TenantBookingDetails", bookingId],
+    queryFn: () => getBooking(bookingId),
+  });
 
-        // Mock data for a single booking
-        if (bookingId === "mock-booking-123") {
-          setBooking({
-            _id: "mock-booking-123",
-            property: {
-              _id: "prop-xyz",
-              title: "Spacious Family Home",
-              propertyType: "duplex",
-              description:
-                "A beautiful 4-bedroom duplex with a large garden, perfect for families. Located in a serene environment with excellent security.",
-              images: [
-                "https://placehold.co/600x400/ADD8E6/000000?text=House%20Front",
-                "https://placehold.co/600x400/87CEEB/000000?text=Living%20Room",
-                "https://placehold.co/600x400/4682B4/FFFFFF?text=Kitchen",
-                "https://placehold.co/600x400/6A5ACD/FFFFFF?text=Bedroom",
-              ],
-              fees: { agency: 75000, caution: 100000 },
-              price: 3000000,
-              location: {
-                address: "456 Garden Avenue",
-                city: "Abuja",
-                state: "FCT",
-                country: "Nigeria",
-                coordinates: [7.4913, 9.0722],
-              },
-            },
-            tenant: "current-user-id",
-            landlord: {
-              _id: "landlord-abc",
-              firstName: "Alice",
-              lastName: "Johnson",
-              email: "alice.johnson@example.com",
-            },
-            message:
-              "Looking forward to viewing this property. Is it available for a long-term lease?",
-            status: "pending", // Can be 'pending', 'approved', 'rejected', 'cancelled'
-            rentStart: new Date("2025-09-01T00:00:00Z"),
-            rentEnd: new Date("2026-08-31T00:00:00Z"),
-            isPaid: false,
-            createdAt: new Date("2025-07-01T10:00:00Z"),
-          });
-        } else {
-          setError("Booking not found or you are not authorized to view it.");
-        }
-
-        // // Actual useQuery implementation (uncomment and replace with your API)
-        // const response = await fetch(`/api/bookings/${bookingId}`);
-        // if (!response.ok) {
-        //   throw new Error('Failed to fetch booking details');
-        // }
-        // const data = await response.json();
-        // setBooking(data.booking);
-        // Toast.show({ type: 'success', text1: data.message });
-      } catch (err: any) {
-        setError(err.message || "Failed to load booking details.");
-        // Toast.show({ type: 'error', text1: err.message || 'Failed to load booking details.' });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchSingleBooking();
-  }, [bookingId]);
+  const booking = data?.booking;
 
   const handleNextImage = () => {
     if (booking && booking.property.images.length > 0) {
@@ -238,10 +94,10 @@ const BookingDetailsScreen: React.FC<BookingDetailsScreenProps> = ({
     return (
       <SafeAreaView className="flex-1 bg-blue-50 justify-center items-center p-5">
         <Text className="text-red-500 text-lg text-center mb-4">
-          {error || "Booking not found."}
+          {error instanceof Error ? error.message : "Booking not found."}
         </Text>
         <TouchableOpacity
-          onPress={onGoBack}
+          onPress={() => router.back()}
           className="bg-blue-600 py-3 px-6 rounded-lg shadow-md"
         >
           <Text className="text-white text-base font-semibold">Go Back</Text>
@@ -256,7 +112,7 @@ const BookingDetailsScreen: React.FC<BookingDetailsScreenProps> = ({
         {/* Back Button */}
         <Animated.View entering={FadeIn.delay(200).duration(500)}>
           <TouchableOpacity
-            onPress={onGoBack}
+            onPress={() => router.back()}
             className="absolute top-4 left-4 z-10 bg-blue-600 p-3 rounded-full shadow-lg"
           >
             <Text className="text-white text-xl">⬅️</Text>
@@ -291,7 +147,7 @@ const BookingDetailsScreen: React.FC<BookingDetailsScreenProps> = ({
                     <Text className="text-white text-lg">▶️</Text>
                   </TouchableOpacity>
                   <View className="absolute bottom-2 left-0 right-0 flex-row justify-center">
-                    {booking.property.images.map((_, index) => (
+                    {booking.property.images.map((_: string, index: number) => (
                       <View
                         key={index}
                         className={`w-2 h-2 rounded-full mx-1 ${
@@ -362,7 +218,7 @@ const BookingDetailsScreen: React.FC<BookingDetailsScreenProps> = ({
                 Your Message
               </Text>
               <Text className="text-gray-700 text-base leading-relaxed italic">
-                "{booking.message}"
+                &quot;{booking.message}&quot;
               </Text>
             </Animated.View>
           )}

@@ -45,66 +45,67 @@ const TabsLayout = () => {
       />
 
       {/* ============ Renter Tabs ============ */}
-      {role && (
-        <>
-          <Tabs.Screen
-            name="TenantBookings"
-            options={{
-              title: "Tenant Bookings",
-              headerShown: false,
-              tabBarIcon: ({ focused }) => (
-                <TabIcon focused={focused} icon={images.list} />
-              ),
-            }}
-          />
-          <Tabs.Screen
-            name="Explore"
-            options={{
-              title: "Explore",
-              headerShown: false,
-              tabBarIcon: ({ focused }) => (
-                <TabIcon focused={focused} icon={icons.search} />
-              ),
-            }}
-          />
-        </>
-      )}
+      {role && [
+        <Tabs.Screen
+          key="TenantBookings"
+          name="TenantBookings"
+          options={{
+            title: "Tenant Bookings",
+            headerShown: false,
+            tabBarIcon: ({ focused }) => (
+              <TabIcon focused={focused} icon={images.list} />
+            ),
+          }}
+        />,
+        <Tabs.Screen
+          key="Explore"
+          name="ListProperties"
+          options={{
+            title: "Explore",
+            headerShown: false,
+            tabBarIcon: ({ focused }) => (
+              <TabIcon focused={focused} icon={icons.search} />
+            ),
+          }}
+        />,
+      ]}
 
       {/* ============ Landlord Tabs ============ */}
-      {!role && (
-        <>
-          <Tabs.Screen
-            name="MyProperties"
-            options={{
-              title: "My Properties",
-              headerShown: false,
-              tabBarIcon: ({ focused }) => (
-                <TabIcon focused={focused} icon={images.list} />
-              ),
-            }}
-          />
-          <Tabs.Screen
-            name="AddProperty"
-            options={{
-              title: "Add Properties",
-              headerShown: false,
-              tabBarIcon: ({ focused }) => (
-                <TabIcon focused={focused} icon={images.add} />
-              ),
-            }}
-          />
-          <Tabs.Screen
-            name="LandlordBookings"
-            options={{
-              title: "Bookings",
-              headerShown: false,
-              tabBarIcon: ({ focused }) => (
-                <TabIcon focused={focused} icon={images.list} />
-              ),
-            }}
-          />
-        </>
-      )}
+      {!role && [
+        <Tabs.Screen
+          key="MyProperties"
+          name="MyProperties"
+          options={{
+            title: "My Properties",
+            headerShown: false,
+            tabBarIcon: ({ focused }) => (
+              <TabIcon focused={focused} icon={images.list} />
+            ),
+          }}
+        />,
+        <Tabs.Screen
+          key="AddProperty"
+          name="AddProperty"
+          options={{
+            title: "Add Properties",
+            headerShown: false,
+            tabBarIcon: ({ focused }) => (
+              <TabIcon focused={focused} icon={images.add} />
+            ),
+          }}
+        />,
+        <Tabs.Screen
+          key="LandlordBookings"
+          name="LandlordBookings"
+          options={{
+            title: "Bookings",
+            headerShown: false,
+            tabBarIcon: ({ focused }) => (
+              <TabIcon focused={focused} icon={images.list} />
+            ),
+          }}
+        />,
+      ]}
 
       {/* Shared Settings */}
       <Tabs.Screen

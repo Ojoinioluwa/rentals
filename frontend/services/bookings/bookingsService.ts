@@ -37,12 +37,13 @@ export const createBooking = async ({ propertyId, message, rentStart, rentEnd }:
     }
 };
 
-export const getMyBookings = async () => {
+export const getMyBookings = async (status: string, page: number, limit: number) => {
     try {
         const user = await getUserFromStorage();
         const token = user?.token;
 
         const response = await axios.get(`${BASE_URL}/bookings/me`, {
+            params: { status, page, limit },
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -56,6 +57,7 @@ export const getMyBookings = async () => {
         throw error;
     }
 };
+
 
 export const getBooking = async (bookingId: string) => {
     try {
@@ -120,12 +122,13 @@ export const rescheduleBooking = async (bookingId: string, newDateRange: any) =>
 
 // ========== Landlord Functions ==========
 
-export const getLandlordBookings = async () => {
+export const getLandlordBookings = async (status: string, limit: number, page: number) => {
     try {
         const user = await getUserFromStorage();
         const token = user?.token;
 
         const response = await axios.get(`${BASE_URL}/bookings/landlord`, {
+            params: { status, limit, page },
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -140,7 +143,7 @@ export const getLandlordBookings = async () => {
     }
 };
 
-export const getBookingByLandlord = async (bookingId: string) => {
+export const getBookingByLandlord = async (bookingId: string,) => {
     try {
         const user = await getUserFromStorage();
         const token = user?.token;

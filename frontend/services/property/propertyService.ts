@@ -5,7 +5,7 @@ import axios, { isAxiosError } from "axios";
 export const getAllProperties = async (queryParams = {}) => {
     try {
         const response = await axios.get(`${BASE_URL}/properties`, {
-            params: queryParams, // Optional: pagination, filters, etc.
+            params: queryParams,
         });
         return response.data;
     } catch (error) {
@@ -16,7 +16,7 @@ export const getAllProperties = async (queryParams = {}) => {
     }
 };
 
-export const getPropertyById = async (propertyId: string) => {
+export const getPropertyAllById = async (propertyId: string) => {
     try {
         const response = await axios.get(`${BASE_URL}/properties/${propertyId}`);
         return response.data;

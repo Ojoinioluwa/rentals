@@ -53,7 +53,6 @@ const AddPropertyForm: React.FC = () => {
     },
     validationSchema: AddPropertySchema,
     onSubmit: async (values) => {
-      console.log("Form values submitted:", values);
       try {
         const response = await mutateAsync(values);
 
@@ -386,9 +385,6 @@ const AddPropertyForm: React.FC = () => {
         {/* Submit Button */}
         <TouchableOpacity
           onPress={() => {
-            console.log("Submitting...");
-            console.log(formik.values);
-            console.log(formik.errors);
             formik.handleSubmit();
           }}
           className="bg-blue-600 py-4 rounded-xl flex-row items-center justify-center shadow-md mb-10"

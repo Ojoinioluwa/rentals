@@ -1,139 +1,99 @@
+import { uploadPropertyImages } from "@/services/landlord/landlordServices";
+import { useMutation } from "@tanstack/react-query";
+import * as ImagePicker from "expo-image-picker";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
   ActivityIndicator,
   Image,
-  Dimensions,
-  Alert, // Using Alert for user feedback in this simulation
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
   FadeInUp,
   FadeOutDown,
-  Layout, // For smooth layout transitions on image add/remove
+  Layout,
 } from "react-native-reanimated";
-// import { useMutation } from '@tanstack/react-query'; // Commented out as requested
-// import Toast from 'react-native-toast-message'; // For displaying messages
+import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
-const { width } = Dimensions.get("window");
-
-interface UploadImagesScreenProps {
-  propertyId: string; // The ID of the property to upload images for
-  onUploadSuccess?: () => void; // Optional callback after successful upload
-  onGoBack?: () => void; // Optional callback to navigate back
-}
-
-const UploadImagesScreen: React.FC<UploadImagesScreenProps> = ({
-  propertyId,
-  onUploadSuccess,
-  onGoBack,
-}) => {
+const UploadImagesScreen: React.FC = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
 
-  // Placeholder for useMutation for uploading images
-  // const { mutateAsync, isPending } = useMutation({
-  //   mutationKey: ['uploadImages', propertyId],
-  //   mutationFn: async (imagesToUpload: string[]) => {
-  //     // Simulate your API call here
-  //     console.log(`Uploading images for property ${propertyId}:`, imagesToUpload);
-  //     return new Promise((resolve, reject) => {
-  //       setTimeout(() => {
-  //         if (imagesToUpload.length > 0 && Math.random() > 0.1) { // Simulate success 90% of the time
-  //           resolve({ success: true, message: `${imagesToUpload.length} Images added` });
-  //         } else if (imagesToUpload.length === 0) {
-  //           reject(new Error("Images Not added, ensure to upload the images properly"));
-  //         }
-  //         else {
-  //           reject(new Error("Failed to upload images. Please try again."));
-  //         }
-  //       }, 2000);
-  //     });
-  //   },
-  // });
+  const { id } = useLocalSearchParams() as { id: string };
+  const router = useRouter();
+  const propertyId = id;
 
-  const isPending = false; // Set to true when using actual useMutation
+  const { mutateAsync, isPending } = useMutation({
+    mutationKey: ["uploadImages"],
+    mutationFn: ({ id, images }: { id: string; images: string[] }) =>
+      uploadPropertyImages(id, images),
+  });
 
-  const handleAddImage = () => {
-    // In a real app, this would open an image picker (e.g., Expo ImagePicker)
-    // and add the selected image URIs to the state.
-    // For simulation, we'll add a dummy image URL.
-    const newDummyImage = `https://placehold.co/200x200/ADD8E6/000000?text=Image%20${
-      selectedImages.length + 1
-    }`;
-    setSelectedImages((prevImages) => [...prevImages, newDummyImage]);
-    // Toast.show({ type: 'info', text1: 'Image added for preview.' });
-    Alert.alert("Image Added", "A dummy image has been added for preview.");
+  const handleAddImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Toast.show({
+        type: "error",
+        text1: "Permission denied",
+        text2: "Allow media access to select images.",
+      });
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: false,
+      quality: 1,
+      base64: false,
+    });
+
+    if (!result.canceled) {
+      const selectedUri = result.assets[0].uri;
+      setSelectedImages((prev) => [...prev, selectedUri]);
+      Toast.show({ type: "info", text1: "Image added." });
+    }
   };
 
   const handleRemoveImage = (indexToRemove: number) => {
     setSelectedImages((prevImages) =>
       prevImages.filter((_, index) => index !== indexToRemove)
     );
-    // Toast.show({ type: 'info', text1: 'Image removed.' });
-    Alert.alert(
-      "Image Removed",
-      "The image has been removed from the selection."
-    );
+    Toast.show({ type: "info", text1: "Image removed." });
   };
 
   const handleSubmitUpload = async () => {
     if (selectedImages.length === 0) {
-      // Toast.show({ type: 'error', text1: 'Please select at least one image to upload.' });
-      Alert.alert("No Images", "Please select at least one image to upload.");
+      Toast.show({
+        type: "error",
+        text1: "Please select at least one image.",
+      });
       return;
     }
 
-    console.log(
-      "Initiating upload for property:",
-      propertyId,
-      "Images:",
-      selectedImages
-    );
-    // try {
-    //   const response = await mutateAsync(selectedImages);
-    //   Toast.show({
-    //     type: 'success',
-    //     text1: response.message,
-    //   });
-    //   setSelectedImages([]); // Clear selected images after successful upload
-    //   onUploadSuccess && onUploadSuccess(); // Call success callback
-    // } catch (error: any) {
-    //   Toast.show({
-    //     type: 'error',
-    //     text1: error.message || 'An error occurred during upload.',
-    //   });
-    // }
-    // --- Simulation for demonstration ---
-    Alert.alert("Upload Initiated", "Simulating image upload...");
-    setTimeout(() => {
-      if (Math.random() > 0.2) {
-        // Simulate success 80% of the time
-        Alert.alert(
-          "Upload Successful",
-          `${selectedImages.length} images uploaded for property ${propertyId}.`
-        );
-        setSelectedImages([]);
-        onUploadSuccess && onUploadSuccess();
-      } else {
-        Alert.alert(
-          "Upload Failed",
-          "Simulated error: Could not upload images. Please try again."
-        );
-      }
-    }, 2000);
-    // --- End Simulation ---
+    try {
+      const response = await mutateAsync({
+        id: propertyId,
+        images: selectedImages,
+      });
+      Toast.show({ type: "success", text1: response.message });
+      setSelectedImages([]);
+    } catch (error: any) {
+      Toast.show({
+        type: "error",
+        text1: error.message || "Upload failed.",
+      });
+    }
   };
 
   return (
     <SafeAreaView className="flex-1 bg-blue-50">
       <ScrollView className="flex-1 p-5">
-        {/* Header */}
         <View className="flex-row items-center justify-between mb-6">
           <TouchableOpacity
-            onPress={onGoBack}
+            onPress={() => router.back()}
             className="bg-blue-600 p-3 rounded-full shadow-lg"
           >
             <Text className="text-white text-xl">⬅️</Text>
@@ -146,7 +106,6 @@ const UploadImagesScreen: React.FC<UploadImagesScreenProps> = ({
           Add high-quality images to showcase your property.
         </Text>
 
-        {/* Add Image Button */}
         <TouchableOpacity
           onPress={handleAddImage}
           className="bg-blue-500 py-4 rounded-xl flex-row items-center justify-center mb-6 shadow-md"
@@ -158,7 +117,6 @@ const UploadImagesScreen: React.FC<UploadImagesScreenProps> = ({
           <Text className="text-white text-xl">📸</Text>
         </TouchableOpacity>
 
-        {/* Image Preview Area */}
         <View className="bg-white p-5 rounded-xl shadow-md mb-6">
           <Text className="text-blue-700 text-xl font-bold mb-4">
             Selected Images ({selectedImages.length})
@@ -169,15 +127,15 @@ const UploadImagesScreen: React.FC<UploadImagesScreenProps> = ({
                 No images selected yet.
               </Text>
               <Text className="text-gray-400 text-sm mt-1">
-                Tap &apos; Select Images &apos; to add some!
+                Tap &apos;Select Images&apos; to add some!
               </Text>
             </View>
           ) : (
             <View className="flex-row flex-wrap justify-center">
               {selectedImages.map((imageUri, index) => (
                 <Animated.View
-                  key={imageUri + index} // Use index as part of key if URIs can be duplicated
-                  layout={Layout.springify()} // Smooth animation for add/remove
+                  key={imageUri + index}
+                  layout={Layout.springify()}
                   entering={FadeInUp.delay(index * 50).duration(400)}
                   exiting={FadeOutDown.duration(300)}
                   className="relative w-28 h-28 m-2 rounded-lg border border-blue-200 overflow-hidden shadow-sm"
@@ -208,7 +166,6 @@ const UploadImagesScreen: React.FC<UploadImagesScreenProps> = ({
           )}
         </View>
 
-        {/* Upload Button */}
         <TouchableOpacity
           onPress={handleSubmitUpload}
           className="bg-blue-600 py-4 rounded-xl flex-row items-center justify-center shadow-md mb-10"

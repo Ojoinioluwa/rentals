@@ -24,7 +24,6 @@ const PropertyDetailsScreen: React.FC = () => {
   const router = useRouter();
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
   const { id } = useLocalSearchParams() as { id: string };
-  console.log(id);
 
   // Animation for image carousel
   const imageOpacity = useSharedValue(1);
@@ -34,7 +33,7 @@ const PropertyDetailsScreen: React.FC = () => {
     };
   });
 
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["property", id],
     queryFn: () => getPropertyById(id),
     enabled: !!id,
@@ -63,8 +62,6 @@ const PropertyDetailsScreen: React.FC = () => {
       });
     }
   };
-
-  console.log("🖼️ Image URL:", property?.images[currentImageIndex]);
 
   if (isLoading) {
     return (

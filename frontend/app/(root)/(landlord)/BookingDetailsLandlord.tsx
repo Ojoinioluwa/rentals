@@ -83,7 +83,7 @@ const LandlordBookingDetailsScreen: React.FC = () => {
 
   const queryClient = useQueryClient(); // Used for invalidating queries after mutations
 
-  const { data, isLoading, error, isError, refetch } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["LandlordsBooking", bookingId],
     queryFn: () => getBookingByLandlord(bookingId),
   });

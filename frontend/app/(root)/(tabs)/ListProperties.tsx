@@ -1,9 +1,11 @@
 import { PropertyCard, propertyTypes } from "@/components/PropertyCard";
+import { getAllProperties } from "@/services/property/propertyService";
 import { Property } from "@/types/property.types";
+import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Dimensions,
   ScrollView,
   Switch,
   Text,
@@ -21,18 +23,11 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-// import { useQuery } from '@tanstack/react-query'; // Commented out as requested
-// import Toast from 'react-native-toast-message'; // For displaying messages
-
-const { width } = Dimensions.get("window");
 
 // Main AllPropertiesScreen Component
 const AllPropertiesScreen: React.FC = () => {
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(10);
+  const [limit] = useState<number>(10);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalProperties, setTotalProperties] = useState<number>(0);
 
@@ -48,6 +43,8 @@ const AllPropertiesScreen: React.FC = () => {
   const [furnishedFilter, setFurnishedFilter] = useState<boolean | undefined>(
     undefined
   );
+
+  const router = useRouter();
 
   // Animation for filter section
   const filterHeight = useSharedValue(0);
@@ -67,111 +64,8 @@ const AllPropertiesScreen: React.FC = () => {
     });
   };
 
-  // Simulate fetching data based on controller logic
-  const fetchAllProperties = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      // Simulate API call with delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Mock data generation based on filters and pagination
-      const allMockProperties: Property[] = Array.from(
-        { length: 100 },
-        (_, i) => ({
-          _id: `all-prop-${i + 1}`,
-          title: `Charming ${i % 2 === 0 ? "Studio" : "Apartment"} ${i + 1}`,
-          description: `A lovely ${
-            i % 2 === 0 ? "studio" : "apartment"
-          } perfect for singles or couples.`,
-          propertyType: ["studio", "apartment", "room", "self-contain"][
-            i % 4
-          ] as any,
-          bedrooms: i % 2, // 0 or 1
-          bathrooms: i % 2,
-          toilets: (i % 2) + 1,
-          furnished: i % 3 === 0,
-          price: (i + 1) * 50000 + 50000,
-          billingCycle: i % 2 === 0 ? "monthly" : "yearly",
-          fees: { caution: (i + 1) * 2000 },
-          features: ["Water Supply", "Electricity", "Parking"].slice(
-            0,
-            (i % 3) + 1
-          ),
-          images: [
-            `https://placehold.co/300x200/ADD8E6/000000?text=Property%20${
-              i + 1
-            }`,
-          ],
-          location: {
-            address: `${i + 100} Oak Lane`,
-            city: ["Lagos", "Abuja", "Kano", "Ibadan"][i % 4],
-            state: ["Lagos State", "FCT", "Kano State", "Oyo State"][i % 4],
-            country: "Nigeria",
-            coordinates: [3.3792 + i * 0.005, 6.5244 + i * 0.005],
-          },
-          isAvailable: i % 5 !== 0, // Simulate some unavailable properties
-          availableFrom: new Date(),
-          landlord: {
-            _id: `landlord-${i % 5}`,
-            email: `landlord${i % 5}@example.com`,
-            firstName: `Landlord${i % 5}`,
-            lastName: `User${i % 5}`,
-          },
-        })
-      );
-
-      let filteredMockProperties = allMockProperties.filter((prop) => {
-        let match = true;
-        if (
-          isAvailableFilter !== undefined &&
-          prop.isAvailable !== isAvailableFilter
-        )
-          match = false;
-        if (propertyTypeFilter && prop.propertyType !== propertyTypeFilter)
-          match = false;
-        if (bedroomsFilter && prop.bedrooms !== Number(bedroomsFilter))
-          match = false;
-        if (bathroomsFilter && prop.bathrooms !== Number(bathroomsFilter))
-          match = false;
-        if (toiletsFilter && prop.toilets !== Number(toiletsFilter))
-          match = false;
-        if (furnishedFilter !== undefined && prop.furnished !== furnishedFilter)
-          match = false;
-        return match;
-      });
-
-      const totalFiltered = filteredMockProperties.length;
-      const paginatedProperties = filteredMockProperties.slice(
-        skip,
-        skip + limit
-      );
-
-      setProperties(paginatedProperties);
-      setTotalProperties(totalFiltered);
-      setTotalPages(Math.ceil(totalFiltered / limit));
-
-      // // Actual useQuery implementation (uncomment and replace with your API)
-      // const response = await fetch(`/api/properties?page=${page}&limit=${limit}&isAvailable=${isAvailableFilter}&propertyType=${propertyTypeFilter}&bedrooms=${bedroomsFilter}&bathrooms=${bathroomsFilter}&toilets=${toiletsFilter}&furnished=${furnishedFilter}`);
-      // if (!response.ok) {
-      //   throw new Error('Failed to fetch properties');
-      // }
-      // const data = await response.json();
-      // setProperties(data.properties);
-      // setTotalProperties(data.totalProperties);
-      // setTotalPages(data.totalPages);
-      // Toast.show({ type: 'success', text1: data.message });
-    } catch (err: any) {
-      setError(err.message || "Failed to load properties.");
-      // Toast.show({ type: 'error', text1: err.message || 'Failed to load properties.' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAllProperties();
-  }, [
+  const queryKey = [
+    "ListPropertiesTenant",
     page,
     limit,
     isAvailableFilter,
@@ -180,7 +74,31 @@ const AllPropertiesScreen: React.FC = () => {
     bathroomsFilter,
     toiletsFilter,
     furnishedFilter,
-  ]); // Re-fetch when filters or pagination change
+  ];
+
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: queryKey,
+    queryFn: () =>
+      getAllProperties({
+        page,
+        limit,
+        isAvailable: isAvailableFilter,
+        propertyType: propertyTypeFilter || undefined,
+        numOfBedroom: bedroomsFilter ? Number(bedroomsFilter) : undefined,
+        numOfBathroom: bathroomsFilter ? Number(bathroomsFilter) : undefined,
+        numOfToilets: toiletsFilter ? Number(toiletsFilter) : undefined,
+        isFurnished: furnishedFilter,
+      }),
+  });
+
+  useEffect(() => {
+    if (data) {
+      setTotalPages(data.totalPages);
+      setTotalProperties(data.totalProperties);
+    }
+  }, [data]);
+
+  const properties = data?.properties;
 
   const handleNextPage = () => {
     if (page < totalPages) {
@@ -195,12 +113,14 @@ const AllPropertiesScreen: React.FC = () => {
   };
 
   const handlePropertyPress = (propertyId: string) => {
-    console.log("Navigating to property details for:", propertyId);
-    // In a real app, you would use router.push(`/property/${propertyId}`);
+    router.push({
+      pathname: "/PropertyDetailsTenant",
+      params: { id: propertyId },
+    });
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-blue-50">
+    <SafeAreaView className="flex-1 bg-blue-50 pb-12">
       <ScrollView className="flex-1 p-5">
         {/* Header */}
         <Animated.View
@@ -233,7 +153,7 @@ const AllPropertiesScreen: React.FC = () => {
         {/* Filter Section */}
         <Animated.View
           style={filterAnimatedStyle}
-          className="overflow-hidden bg-white p-5 rounded-xl shadow-md mb-6"
+          className="overflow-hidden bg-white p-5 rounded-xl shadow-md mb-4"
         >
           <View
             onLayout={(event) => {
@@ -382,9 +302,12 @@ const AllPropertiesScreen: React.FC = () => {
           </View>
         ) : error ? (
           <View className="flex-1 justify-center items-center py-10">
-            <Text className="text-red-500 text-lg text-center">{error}</Text>
+            <Text className="text-red-500 text-lg text-center">
+              {" "}
+              {error instanceof Error ? error.message : "Property not found."}
+            </Text>
             <TouchableOpacity
-              onPress={fetchAllProperties}
+              onPress={() => refetch()}
               className="bg-blue-600 py-3 px-6 rounded-lg mt-4"
             >
               <Text className="text-white text-base">Retry</Text>
@@ -407,7 +330,7 @@ const AllPropertiesScreen: React.FC = () => {
                 Available Listings ({totalProperties})
               </Text>
             </Animated.View>
-            {properties.map((property, index) => (
+            {properties.map((property: Property, index: number) => (
               <Animated.View
                 key={property._id}
                 entering={FadeInUp.delay(index * 50 + 400).duration(500)} // Staggered entrance animation

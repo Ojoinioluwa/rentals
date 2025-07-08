@@ -6,6 +6,7 @@ import {
 } from "@/components/PropertyCard";
 import { EditPropertySchema } from "@/schemas/schemas";
 import { Property } from "@/types/property.types";
+import { useMutation } from "@tanstack/react-query";
 import { useFormik } from "formik";
 import React, { useState } from "react";
 import {
@@ -17,6 +18,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 // Validation Schema using Yup
 
@@ -75,24 +77,27 @@ const EditPropertyForm: React.FC<EditPropertyFormProps> = ({ propertyId }) => {
   // });
 
   // Placeholder for useMutation for updating property
-  // const { mutateAsync, isPending: isUpdating } = useMutation({
-  //   mutationKey: ['updateProperty'],
-  //   mutationFn: async (updatedPropertyData: Partial<Property>) => {
-  //     // Replace with your actual API call to update property
-  //     console.log('Updating property data:', updatedPropertyData);
-  //     return new Promise((resolve) => {
-  //       setTimeout(() => {
-  //         if (Math.random() > 0.1) { // Simulate success 90% of the time
-  //           resolve({ success: true, message: 'Property updated successfully!' });
-  //         } else {
-  //           throw new Error('Failed to update property. Please try again.');
-  //         }
-  //       }, 1500);
-  //     });
-  //   },
-  // });
+  const { mutateAsync, isPending: isUpdating } = useMutation({
+    mutationKey: ["updateProperty"],
+    mutationFn: async (updatedPropertyData: Partial<Property>) => {
+      // Replace with your actual API call to update property
+      console.log("Updating property data:", updatedPropertyData);
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          if (Math.random() > 0.1) {
+            // Simulate success 90% of the time
+            resolve({
+              success: true,
+              message: "Property updated successfully!",
+            });
+          } else {
+            throw new Error("Failed to update property. Please try again.");
+          }
+        }, 1500);
+      });
+    },
+  });
 
-  const isUpdating = false; // Set to true when using actual useMutation
   const isPending = isLoadingProperty || isUpdating; // Overall pending state
 
   const formik = useFormik({
@@ -124,19 +129,19 @@ const EditPropertyForm: React.FC<EditPropertyFormProps> = ({ propertyId }) => {
     validationSchema: EditPropertySchema,
     onSubmit: async (values) => {
       console.log("Form values submitted for update:", values);
-      // try {
-      //   const response = await mutateAsync(values); // Pass values to mutation
-      //   Toast.show({
-      //     type: 'success',
-      //     text1: response.message,
-      //   });
-      //   // Optionally navigate or show success message
-      // } catch (error: any) {
-      //   Toast.show({
-      //     type: 'error',
-      //     text1: error.message || 'An error occurred during update',
-      //   });
-      // }
+      try {
+        const response = await mutateAsync(values); // Pass values to mutation
+        Toast.show({
+          type: "success",
+          text1: response.message,
+        });
+        // Optionally navigate or show success message
+      } catch (error: any) {
+        Toast.show({
+          type: "error",
+          text1: error.message || "An error occurred during update",
+        });
+      }
     },
   });
 

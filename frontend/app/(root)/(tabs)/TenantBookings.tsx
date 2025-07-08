@@ -1,8 +1,12 @@
 import { BookingCard } from "@/components/BookingCard";
-import { getMyBookings } from "@/services/bookings/bookingsService";
-import { useQuery } from "@tanstack/react-query";
+import {
+  cancelBooking,
+  getMyBookings,
+} from "@/services/bookings/bookingsService";
+import { PropertyForBooking } from "@/types/Booking.types";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -20,15 +24,13 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-// import { useQuery } from '@tanstack/react-query'; // Commented out as requested
-// import Toast from 'react-native-toast-message'; // For displaying messages
+import Toast from "react-native-toast-message";
 
-// Define the type for a Booking, matching your Mongoose schema (with populated property)
 interface Booking {
   _id: string;
-  property: PropertyForBooking; // Populated property details
-  tenant: string; // Tenant ID (assuming current user)
-  landlord: string; // Landlord ID
+  property: PropertyForBooking;
+  tenant: string;
+  landlord: string;
   message?: string;
   status: "pending" | "approved" | "rejected" | "cancelled";
   rentStart: Date;
@@ -40,13 +42,14 @@ interface Booking {
 // Main MyBookingsScreen Component
 const MyBookingsScreen: React.FC = () => {
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(10);
+  const [limit] = useState<number>(10);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalBookings, setTotalBookings] = useState<number>(0);
+  const [isProcessingAction, setIsProcessingAction] = useState<boolean>(false);
 
   // Filter states
   const [showFilters, setShowFilters] = useState<boolean>(false);
-  const [statusFilter, setStatusFilter] = useState<Booking["status"] | "">("");
+  const [status, setStatus] = useState<Booking["status"] | "">("");
 
   // router details
   const router = useRouter();
@@ -58,15 +61,13 @@ const MyBookingsScreen: React.FC = () => {
     "cancelled",
   ];
 
-  const { data, isLoading, refetch, error, isError } = useQuery({
-    queryKey: ["TenantBookings"],
-    queryFn: getMyBookings,
+  const { data, isLoading, refetch, error } = useQuery({
+    queryKey: ["TenantBookings", status, page],
+    queryFn: () => getMyBookings(status, page, limit),
   });
 
-  const bookings = data.bookings;
+  const bookings = data?.bookings;
 
-  console.log("Data", data);
-  console.log("Booking", bookings);
   // Animation for filter section
   const filterHeight = useSharedValue(0);
   const filterAnimatedStyle = useAnimatedStyle(() => {
@@ -84,7 +85,35 @@ const MyBookingsScreen: React.FC = () => {
       easing: Easing.inOut(Easing.ease),
     });
   };
-  // Re-fetch when filters or pagination change
+
+  useEffect(() => {
+    setTotalBookings(bookings?.length);
+  }, [bookings]);
+
+  const { mutateAsync: cancel } = useMutation({
+    mutationKey: ["rejectBooking"],
+    mutationFn: cancelBooking,
+    onError: (err: any) => {
+      Toast.show({
+        type: "error",
+        text1: err.message || "Failed to update booking status.",
+      });
+      setIsProcessingAction(false);
+    },
+  });
+
+  const onCancel = async (bookingId: string) => {
+    setIsProcessingAction(true);
+    await cancel(bookingId);
+    setTimeout(() => {
+      Toast.show({
+        type: "success",
+        text1: "Booking Cancelled Successfully",
+      });
+      setIsProcessingAction(false);
+      refetch();
+    }, 1000);
+  };
 
   const handleNextPage = () => {
     if (page < totalPages) {
@@ -106,7 +135,7 @@ const MyBookingsScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-blue-50">
+    <SafeAreaView className="flex-1 bg-blue-50 pb-12">
       <ScrollView className="flex-1 p-5">
         {/* Header */}
         <Animated.View
@@ -159,9 +188,9 @@ const MyBookingsScreen: React.FC = () => {
               </Text>
               <View className="flex-row flex-wrap">
                 <TouchableOpacity
-                  onPress={() => setStatusFilter("")}
+                  onPress={() => setStatus("")}
                   className={`px-3 py-2 m-1 rounded-full border ${
-                    statusFilter === ""
+                    status === ""
                       ? "bg-blue-100 border-blue-500"
                       : "bg-gray-100 border-gray-300"
                   }`}
@@ -169,7 +198,7 @@ const MyBookingsScreen: React.FC = () => {
                 >
                   <Text
                     className={`text-sm font-medium ${
-                      statusFilter === "" ? "text-blue-700" : "text-gray-700"
+                      status === "" ? "text-blue-700" : "text-gray-700"
                     }`}
                   >
                     All
@@ -178,11 +207,9 @@ const MyBookingsScreen: React.FC = () => {
                 {allowedStatuses.map((status) => (
                   <TouchableOpacity
                     key={status}
-                    onPress={() =>
-                      setStatusFilter(statusFilter === status ? "" : status)
-                    }
+                    onPress={() => setStatus(status === status ? "" : status)}
                     className={`px-3 py-2 m-1 rounded-full border ${
-                      statusFilter === status
+                      status === status
                         ? "bg-blue-100 border-blue-500"
                         : "bg-gray-100 border-gray-300"
                     }`}
@@ -190,9 +217,7 @@ const MyBookingsScreen: React.FC = () => {
                   >
                     <Text
                       className={`text-sm font-medium capitalize ${
-                        statusFilter === status
-                          ? "text-blue-700"
-                          : "text-gray-700"
+                        status === status ? "text-blue-700" : "text-gray-700"
                       }`}
                     >
                       {status}
@@ -244,7 +269,7 @@ const MyBookingsScreen: React.FC = () => {
               Try adjusting your filters or creating new bookings.
             </Text>
             <TouchableOpacity
-              onPress={() => console.log("Navigate to Create Booking")}
+              onPress={() => router.push("/ListProperties")}
               className="bg-blue-600 py-3 px-6 rounded-lg mt-4"
             >
               <Text className="text-white text-base">Create New Booking</Text>
@@ -265,7 +290,12 @@ const MyBookingsScreen: React.FC = () => {
                 exiting={FadeOutDown.duration(300)}
                 layout={Layout.springify()} // Smooth layout changes
               >
-                <BookingCard booking={booking} onPress={handleBookingPress} />
+                <BookingCard
+                  booking={booking}
+                  onPress={handleBookingPress}
+                  onCancel={onCancel}
+                  isProcessing={isProcessingAction}
+                />
               </Animated.View>
             ))}
 

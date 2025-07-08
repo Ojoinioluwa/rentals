@@ -176,10 +176,14 @@ interface Bookings {
 interface BookingCardProps {
   booking: Bookings;
   onPress: (bookingId: string) => void;
+  onCancel: (bookingId: string) => void;
+  isProcessing: boolean;
 }
 export const BookingCard: React.FC<BookingCardProps> = ({
   booking,
   onPress,
+  onCancel,
+  isProcessing,
 }) => {
   const scale = useSharedValue(1);
 
@@ -273,6 +277,20 @@ export const BookingCard: React.FC<BookingCardProps> = ({
               <Text className="text-gray-600 text-sm italic" numberOfLines={2}>
                 &quot; {booking.message} &quot;
               </Text>
+            </View>
+          )}
+
+          {booking.status === "pending" && (
+            <View className="flex-row justify-around mt-4">
+              <TouchableOpacity
+                onPress={() => onCancel && onCancel(booking._id)}
+                className="bg-red-500 py-2 px-4 rounded-lg shadow-sm flex-1 mr-2"
+                disabled={isProcessing}
+              >
+                <Text className="text-white font-semibold text-center">
+                  Cancel
+                </Text>
+              </TouchableOpacity>
             </View>
           )}
         </View>

@@ -25,6 +25,14 @@ const bookController = {
             })
         }
 
+        const alreadyBooked = await Booking.findOne({ property: id, tenant: req.user._id })
+
+        if (alreadyBooked) {
+            return res.status(400).json({
+                success: false,
+                message: "Already Booked. wait for approval from the landlord"
+            })
+        }
         const property = await Property.findById(id).lean();
 
         if (!property) {
@@ -84,7 +92,7 @@ const bookController = {
 
 
         const bookings = await Booking.find(filter)
-            .populate("property", "title description propertyType description")
+            .populate("property", "title description propertyType description images")
             .limit(limit)
             .skip(skip)
             .lean();
@@ -94,8 +102,6 @@ const bookController = {
             message: "Bookings Fetched Successfully",
             bookings
         })
-
-
     }),
 
     getBooking: asyncHandler(async (req, res) => {
@@ -108,7 +114,7 @@ const bookController = {
             })
         }
 
-        const booking = await Booking.findOne({ tenant: req.user._id, _id: id }).populate("landlord", "firstName lastName email").populate("property", "fees price location").lean()
+        const booking = await Booking.findOne({ tenant: req.user._id, _id: id }).populate("landlord", "firstName lastName email").populate("property", "fees price location images").lean()
 
         if (!booking) {
             return res.status(404).json({
@@ -214,7 +220,7 @@ const bookController = {
 
 
         const bookings = await Booking.find(filter)
-            .populate("property", "title description propertyType description")
+            .populate("property", "title description propertyType description images")
             .limit(limit)
             .skip(skip)
             .lean();

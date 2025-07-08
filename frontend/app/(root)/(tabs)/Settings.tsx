@@ -202,7 +202,7 @@ const Settings = () => {
           <Text className="text-white text-lg font-bold mr-2">Logout</Text>
           <Text className="text-white text-xl">➡️</Text>
         </TouchableOpacity>
-        <View className="h-10" /> {/* Spacer for bottom */}
+        <View className="h-10" />
       </ScrollView>
     </SafeAreaView>
   );
