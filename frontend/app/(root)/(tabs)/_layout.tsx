@@ -19,7 +19,7 @@ const TabIcon = ({ focused, icon }: { focused: boolean; icon: any }) => {
 };
 
 const TabsLayout = () => {
-  const role = true;
+  const role = false;
 
   return (
     <Tabs

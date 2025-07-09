@@ -1,7 +1,7 @@
 import { ActionCard } from "@/components/ActionCard";
 import { useRouter } from "expo-router";
 import React from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import Animated, { FadeInUp, Layout } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 // import { useRouter } from 'expo-router'; // Uncomment if using Expo Router for navigation
@@ -102,9 +102,6 @@ const HomeScreen: React.FC = () => {
           )}
         </Animated.View>
         {/* General Settings/Info */}
-        <TouchableOpacity onPress={() => router.push("/PropertyDetailsTenant")}>
-          <Text>Property Details</Text>
-        </TouchableOpacity>
         <Animated.View
           entering={FadeInUp.delay(isLandlord ? 600 : 500).duration(600)}
           className="mt-8"

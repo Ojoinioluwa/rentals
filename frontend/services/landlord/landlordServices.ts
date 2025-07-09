@@ -165,13 +165,18 @@ export const toggleAvailability = async (id: string) => {
 };
 
 // Upload images
-export const uploadPropertyImages = async (id: string, images: string[]) => {
+export const uploadPropertyImages = async ({ id, images }: { id: string, images: FormData }) => {
     try {
         const headers = await getAuthHeaders();
         const res = await axios.post(
-            `${BASE_URL}/properties/${id}/upload-images`,
-            { images },
-            { headers }
+            `${BASE_URL}/properties/landlord/${id}/upload-images`,
+            images,
+            {
+                headers: {
+                    ...headers,
+                    "Content-Type": "multipart/form-data",
+                }
+            }
         );
         return res.data;
     } catch (error) {

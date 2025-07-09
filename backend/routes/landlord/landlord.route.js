@@ -2,6 +2,7 @@ const express = require("express");
 const landlordController = require("../../controller/landlord.controller");
 const authorize = require("../../middlewares/authorizeUser");
 const isAuthenticated = require("../../middlewares/isAuth");
+const { upload } = require("../../utils/cloudinary");
 
 const propertyRouter = express.Router();
 
@@ -31,6 +32,12 @@ propertyRouter.delete("/:id", authorize("landlord"), landlordController.deletePr
 propertyRouter.patch("/:id/toggle", authorize("landlord"), landlordController.toggleAvailability);
 
 // Upload property images
-propertyRouter.post("/:id/upload-images", authorize("landlord"), landlordController.uploadImages);
+propertyRouter.post(
+    "/:id/upload-images",
+    authorize("landlord"),
+    upload.array("images", 10),
+    landlordController.uploadImages
+);
+
 
 module.exports = propertyRouter;

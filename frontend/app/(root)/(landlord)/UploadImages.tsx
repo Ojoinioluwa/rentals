@@ -1,5 +1,5 @@
 import { uploadPropertyImages } from "@/services/landlord/landlordServices";
-import { useMutation } from "@tanstack/react-query";
+import { QueryClient, useMutation } from "@tanstack/react-query";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -19,8 +19,9 @@ import Animated, {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
-const UploadImagesScreen: React.FC = () => {
+const UploadImagesScreen = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const queryClient = new QueryClient();
 
   const { id } = useLocalSearchParams() as { id: string };
   const router = useRouter();
@@ -28,8 +29,8 @@ const UploadImagesScreen: React.FC = () => {
 
   const { mutateAsync, isPending } = useMutation({
     mutationKey: ["uploadImages"],
-    mutationFn: ({ id, images }: { id: string; images: string[] }) =>
-      uploadPropertyImages(id, images),
+    mutationFn: ({ id, images }: { id: string; images: FormData }) =>
+      uploadPropertyImages({ id, images }),
   });
 
   const handleAddImage = async () => {
@@ -74,10 +75,23 @@ const UploadImagesScreen: React.FC = () => {
     }
 
     try {
-      const response = await mutateAsync({
-        id: propertyId,
-        images: selectedImages,
+      const formData = new FormData();
+
+      selectedImages.forEach((uri, index) => {
+        const filename = uri.split("/").pop();
+        const match = /\.(\w+)$/.exec(filename ?? "");
+        const type = match ? `image/${match[1]}` : `image`;
+
+        formData.append("images", {
+          uri,
+          name: filename,
+          type,
+        } as any); // RN FormData typing workaround
       });
+
+      const response = await mutateAsync({ id: propertyId, images: formData });
+      queryClient.invalidateQueries({ queryKey: ["property", id] });
+      router.back();
       Toast.show({ type: "success", text1: response.message });
       setSelectedImages([]);
     } catch (error: any) {

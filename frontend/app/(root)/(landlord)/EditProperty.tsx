@@ -102,7 +102,6 @@ const EditPropertyForm: React.FC<EditPropertyFormProps> = ({ propertyId }) => {
 
   const formik = useFormik({
     initialValues: initialPropertyData || {
-      // Use fetched data or default empty values
       title: "",
       description: "",
       propertyType: "",

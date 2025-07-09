@@ -303,37 +303,43 @@ const landlordController = {
     }),
 
     uploadImages: asyncHandler(async (req, res) => {
-        const { images } = req.body;
-        const { id } = req.params
+        const { id } = req.params;
+        const files = req.files; // multer puts files in req.files
+        console.log("FILES RECEIVED:", req.files);
 
-        if (images.length() == 0) {
+
+        if (!files || files.length === 0) {
             return res.status(400).json({
                 success: false,
-                message: "Images Not added ensure to upload the images properly"
-            })
+                message: "No images uploaded. Please ensure files are attached.",
+            });
         }
 
-
-        const property = await Property.findOne({ landlord: req.user._id, id });
+        const property = await Property.findOne({ _id: id, landlord: req.user._id });
 
         if (!property) {
             return res.status(404).json({
                 success: false,
-                message: "Property does not exist"
-            })
+                message: "Property not found or you do not have access.",
+            });
         }
 
-        images.forEach(image => property.images.push(image));
+        // Push the uploaded image URLs into property.images
+        files.forEach((file) => {
+            if (file.path) {
+                property.images.push(file.path);
+            }
+        });
 
-        await property.save()
+        await property.save();
 
         res.status(200).json({
-            success: false,
-            message: `${images.length} Images added`
-        })
-
-
+            success: true,
+            message: `${files.length} image(s) uploaded successfully.`,
+            images: property.images,
+        });
     }),
+
 }
 
 

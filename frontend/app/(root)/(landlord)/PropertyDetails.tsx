@@ -298,6 +298,35 @@ const PropertyDetailsScreen: React.FC = () => {
             {/* You could embed a map component here using the coordinates */}
           </Animated.View>
 
+          <Animated.View
+            entering={FadeInUp.delay(300).duration(500)}
+            className="bg-white p-5 rounded-2xl shadow-lg mb-6 flex-row space-x-3 justify-between gap-2"
+          >
+            <TouchableOpacity
+              onPress={() =>
+                router.push({ pathname: "/UploadImages", params: { id } })
+              }
+              className="flex-1 bg-blue-700 py-3 rounded-xl flex-row items-center justify-center shadow-md"
+            >
+              <Text className="text-white text-base font-semibold mr-2">
+                Upload Images
+              </Text>
+              <Text className="text-white text-xl">📤</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() =>
+                router.push({ pathname: "/EditProperty", params: { id } })
+              }
+              className="flex-1 bg-gray-100 py-3 rounded-xl flex-row items-center justify-center shadow-sm border border-gray-300"
+            >
+              <Text className="text-blue-800 text-base font-semibold mr-2">
+                Edit Property
+              </Text>
+              <Text className="text-blue-800 text-xl">✏️</Text>
+            </TouchableOpacity>
+          </Animated.View>
+
           {/* Landlord Info */}
           <Animated.View
             entering={FadeInUp.delay(1000).duration(600)}
@@ -313,6 +342,7 @@ const PropertyDetailsScreen: React.FC = () => {
             <Text className="text-gray-700 text-base">
               Email: {property?.landlord?.email}
             </Text>
+
             <TouchableOpacity
               onPress={() => console.log("Initiate contact with landlord")}
               className="bg-blue-600 py-3 rounded-lg flex-row items-center justify-center mt-4 shadow-md"
