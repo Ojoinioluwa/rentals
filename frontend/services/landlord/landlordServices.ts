@@ -61,10 +61,10 @@ export const createProperty = async (data: FormData) => {
         return res.data;
     } catch (error) {
         if (isAxiosError(error)) {
-            console.log(error.response?.data?.message)
+            // console.log(error.response?.data?.message)
             throw new Error(error.response?.data?.message || "Failed to create property");
         }
-        console.error(error)
+        // console.error(error)
         throw error;
     }
 };
@@ -114,15 +114,14 @@ export const getMyProperties = async ({
 export const getPropertyById = async (id: string) => {
     try {
         const headers = await getAuthHeaders();
-        console.log("iiiii....")
         const res = await axios.get(`${BASE_URL}/properties/landlord/getById/${id}`, { headers });
-        console.log(res.data)
+
         return res.data;
     } catch (error) {
         if (isAxiosError(error)) {
             throw new Error(error.response?.data?.message || "Property not found");
         }
-        console.log(error)
+        // console.log(error)
         throw error;
     }
 };

@@ -189,17 +189,17 @@ const Settings = () => {
               <SettingItem
                 icon={<Text className="text-blue-600 text-lg">🌐</Text>}
                 title="Language"
-                onPress={() => console.log("Change Language")}
+                onPress={() => router.push("/law/ChangeOfLanguage")}
               />
               <SettingItem
                 icon={<Text className="text-blue-600 text-lg">📄</Text>}
                 title="Privacy Policy"
-                onPress={() => console.log("View Privacy Policy")}
+                onPress={() => router.push("/law/PrivacyPolicy")}
               />
               <SettingItem
                 icon={<Text className="text-blue-600 text-lg">📜</Text>}
                 title="Terms of Service"
-                onPress={() => console.log("View Terms of Service")}
+                onPress={() => router.push("/law/TermsOfService")}
                 isLast={true}
               />
             </View>

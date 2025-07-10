@@ -21,7 +21,7 @@ export const LoginAPI = async ({
     } catch (error) {
         if (isAxiosError(error)) {
             const message = error.response?.data?.message || "Login failed";
-            console.error("LoginAPI Error:", message, error.response?.data);
+            // console.error("LoginAPI Error:", message, error.response?.data);
             throw new Error(message);
         }
         throw new Error("An unexpected error occurred during login");
@@ -50,7 +50,7 @@ export const RegisterAPI = async ({
     } catch (error) {
         if (isAxiosError(error)) {
             const message = error.response?.data?.message || "Registration failed";
-            console.error("RegisterAPI Error:", message, error.response?.data);
+            // console.error("RegisterAPI Error:", message, error.response?.data);
             throw new Error(message);
         }
         throw new Error("An unexpected error occurred during registration");
@@ -72,7 +72,7 @@ export const GetProfileAPI = async () => {
     } catch (error) {
         if (isAxiosError(error)) {
             const message = error.response?.data?.message || "Failed to fetch user profile";
-            console.error("GetProfileAPI Error:", message, error.response?.data);
+            // console.error("GetProfileAPI Error:", message, error.response?.data);
             throw new Error(message);
         }
         throw new Error("An unexpected error occurred while fetching profile");
@@ -107,7 +107,7 @@ export const UpdateProfile = async ({
     } catch (error) {
         if (isAxiosError(error)) {
             const message = error.response?.data?.message || "Failed to update profile";
-            console.error("UpdateProfile Error:", message, error.response?.data);
+            // console.error("UpdateProfile Error:", message, error.response?.data);
             throw new Error(message);
         }
         throw new Error("An unexpected error occurred while updating profile");
@@ -121,7 +121,7 @@ export const VerifyEmailAPI = async ({ email, verificationCode }: VerifyEmail): 
     } catch (error) {
         if (isAxiosError(error)) {
             const message = error.response?.data?.message || "Failed to Verify user";
-            console.error("VerifyEmailAPI Error:", message, error.response?.data);
+            // console.error("VerifyEmailAPI Error:", message, error.response?.data);
             throw new Error(message);
         }
         throw new Error("An unexpected error occurred while Verifying Email");

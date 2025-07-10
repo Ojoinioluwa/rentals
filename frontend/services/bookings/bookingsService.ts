@@ -199,7 +199,7 @@ export const rejectBooking = async (bookingId: string) => {
         if (isAxiosError(error)) {
             throw new Error(error.response?.data?.message || "Failed to reject booking");
         }
-        console.log(error)
+        // console.log(error)
         throw error;
     }
 };

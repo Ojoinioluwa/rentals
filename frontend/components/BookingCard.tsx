@@ -10,6 +10,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import ActionLinkButton from "./ActionButtonLink";
 
 export const LandlordBookingCard: React.FC<LandlordBookingCardProps> = ({
   booking,
@@ -120,7 +121,7 @@ export const LandlordBookingCard: React.FC<LandlordBookingCardProps> = ({
 
           {/* Landlord Actions for Pending Bookings */}
           {booking.status === "pending" && (
-            <View className="flex-row justify-around mt-4">
+            <View className="flex-row justify-around mt-4 mb-3">
               <TouchableOpacity
                 onPress={() => onApprove && onApprove(booking._id)}
                 className="bg-green-500 py-2 px-4 rounded-lg shadow-sm flex-1 mr-2"
@@ -141,17 +142,14 @@ export const LandlordBookingCard: React.FC<LandlordBookingCardProps> = ({
               </TouchableOpacity>
             </View>
           )}
-          {booking.status === "pending" && onMessageTenant && (
-            <TouchableOpacity
-              onPress={() => onMessageTenant(booking.tenant.email)}
-              className="bg-blue-600 py-2 px-4 rounded-lg shadow-sm flex-row items-center justify-center mt-2 w-full"
-              disabled={isProcessing}
-            >
-              <Text className="text-white font-semibold mr-2">
-                Message Tenant
-              </Text>
-              <Text className="text-white text-lg">✉️</Text>
-            </TouchableOpacity>
+          {booking.status === "pending" && (
+            <ActionLinkButton
+              label="Email Support"
+              type="email"
+              destination={`${booking.tenant.email}`}
+              icon={<Text className="text-green-600 text-2xl">✉️</Text>}
+              description="Send us a detailed message"
+            />
           )}
         </View>
       </TouchableOpacity>

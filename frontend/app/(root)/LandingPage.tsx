@@ -19,9 +19,6 @@ const LandingPage: React.FC = () => {
     const checkUser = async () => {
       try {
         const userData = await getUserFromStorage();
-        console.log(userData);
-
-        console.log(userData?.user?.role);
         const role = userData?.user?.role;
 
         if (role === "landlord") {

@@ -1,3 +1,4 @@
+import ActionLinkButton from "@/components/ActionButtonLink";
 import {
   approveBooking,
   getBookingByLandlord,
@@ -8,7 +9,6 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -206,18 +206,6 @@ const LandlordBookingDetailsScreen: React.FC = () => {
     }, 1000);
   };
 
-  const handleMessageTenant = () => {
-    if (booking?.tenant?.email) {
-      Alert.alert(
-        "Message Tenant",
-        `Simulating messaging tenant: ${booking?.tenant?.email}`
-      );
-      // In a real app, this would open an email client or an in-app chat feature.
-    } else {
-      Alert.alert("Error", "Tenant email not available.");
-    }
-  };
-
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 bg-blue-50 justify-center items-center">
@@ -375,19 +363,16 @@ const LandlordBookingDetailsScreen: React.FC = () => {
             <Text className="text-gray-700 text-base">
               Name: {booking.tenant.firstName} {booking.tenant.lastName}
             </Text>
-            <Text className="text-gray-700 text-base">
+            <Text className="text-gray-700 text-base mb-2">
               Email: {booking.tenant.email}
             </Text>
-            <TouchableOpacity
-              onPress={handleMessageTenant}
-              className="bg-blue-600 py-3 rounded-lg flex-row items-center justify-center mt-4 shadow-md"
-              disabled={isProcessingAction}
-            >
-              <Text className="text-white text-lg font-semibold mr-2">
-                Message Tenant
-              </Text>
-              <Text className="text-white text-xl">✉️</Text>
-            </TouchableOpacity>
+            <ActionLinkButton
+              label="Message Tenant"
+              type="email"
+              destination={`${booking.tenant.email}`}
+              icon={<Text className="text-green-600 text-2xl">✉️</Text>}
+              description="Discuss details with tenant"
+            />
           </Animated.View>
 
           {/* Property Details Snapshot */}

@@ -39,7 +39,7 @@ const RoleSelection: React.FC = () => {
           description="Find your next home, browse properties, and manage your bookings."
           onPress={() => {
             onRoleSelected("renter");
-            console.log("Selected: Renter");
+            // console.log("Selected: Renter");
           }}
           delay={200}
         />
@@ -50,7 +50,7 @@ const RoleSelection: React.FC = () => {
           description="List your properties, manage bookings, and communicate with tenants."
           onPress={() => {
             onRoleSelected("landlord");
-            console.log("Selected: Landlord");
+            // console.log("Selected: Landlord");
           }}
           delay={400}
         />

@@ -89,7 +89,6 @@ const AddPropertyForm: React.FC = () => {
         formData.append("isAvailable", JSON.stringify(values.isAvailable));
 
         const response = await mutateAsync(formData);
-        console.log(values.fees);
 
         Toast.show({
           type: "success",

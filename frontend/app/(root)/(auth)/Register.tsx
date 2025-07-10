@@ -87,7 +87,7 @@ const Register = () => {
           router.replace("/VerifyEmail");
         })
         .catch((error) => {
-          console.log("Register error", error);
+          // console.log("Register error", error);
           Toast.show({
             type: "error",
             text1: error.message,

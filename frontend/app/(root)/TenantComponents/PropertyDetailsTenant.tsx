@@ -328,7 +328,7 @@ const TenantPropertyDetailsScreen: React.FC = () => {
               Email: {property.landlord.email}
             </Text>
             <ActionLinkButton
-              label="Email Support"
+              label="Message Landlord"
               type="email"
               destination={`${property.landlord.email}`}
               icon={<Text className="text-green-600 text-2xl">✉️</Text>}
@@ -345,7 +345,7 @@ const TenantPropertyDetailsScreen: React.FC = () => {
               <TouchableOpacity
                 onPress={() =>
                   router.push({
-                    pathname: "/CreateBooking",
+                    pathname: "/TenantComponents/CreateBooking",
                     params: { id: property._id },
                   })
                 }

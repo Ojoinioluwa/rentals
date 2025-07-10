@@ -64,10 +64,8 @@ function VerifyEmail() {
     },
     validationSchema,
     onSubmit: async (values) => {
-      console.log(values);
       try {
         const data = await mutateAsync(values);
-        console.log(data);
 
         Toast.show({
           type: "success",
@@ -76,7 +74,7 @@ function VerifyEmail() {
         formik.resetForm();
         router.replace("/Login");
       } catch (error: any) {
-        console.error("Verification failed:", error);
+        // console.error("Verification failed:", error);
         Toast.show({
           type: "error",
           text1: error.message,
