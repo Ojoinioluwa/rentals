@@ -58,29 +58,29 @@ const propertyController = {
             .lean();
 
         // Fallback logic: If no match, try nearby locations
-        let suggestedProperties = [];
+        // let suggestedProperties = [];
 
-        if (properties.length === 0 && search) {
-            const geoData = await getCoordinates(search); // You already have this util
+        // if (properties.length === 0 && search) {
+        //     const geoData = await getCoordinates(search, process.env.GEO_API_KEY); // You already have this util
 
-            if (geoData) {
-                suggestedProperties = await Property.aggregate([
-                    {
-                        $geoNear: {
-                            near: {
-                                type: "Point",
-                                coordinates: [geoData.longitude, geoData.latitude],
-                            },
-                            distanceField: "distance",
-                            maxDistance: 15000, // 15 km range
-                            spherical: true,
-                            key: "location.coordinates", // Adjust if your schema differs
-                        },
-                    },
-                    { $limit: 10 },
-                ]);
-            }
-        }
+        //     if (geoData) {
+        //         suggestedProperties = await Property.aggregate([
+        //             {
+        //                 $geoNear: {
+        //                     near: {
+        //                         type: "Point",
+        //                         coordinates: [geoData.longitude, geoData.latitude],
+        //                     },
+        //                     distanceField: "distance",
+        //                     maxDistance: 15000, // 15 km range
+        //                     spherical: true,
+        //                     key: "location.coordinates", // Adjust if your schema differs
+        //                 },
+        //             },
+        //             { $limit: 10 },
+        //         ]);
+        //     }
+        // }
 
         return res.status(200).json({
             success: true,
@@ -90,7 +90,7 @@ const propertyController = {
             totalPages: Math.ceil(total / limit),
             totalProperties: total,
             properties,
-            suggestedProperties,
+            // suggestedProperties,
         });
     }),
 
