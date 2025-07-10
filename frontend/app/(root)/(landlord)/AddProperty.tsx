@@ -4,9 +4,11 @@ import {
   FormPicker,
   FormSwitch,
 } from "@/components/PropertyCard";
-import { EditPropertySchema } from "@/schemas/schemas";
-import { Property } from "@/types/property.types";
-import { useMutation } from "@tanstack/react-query";
+import { AddPropertySchema } from "@/schemas/schemas";
+import { createProperty } from "@/services/landlord/landlordServices";
+import { QueryClient, useMutation } from "@tanstack/react-query";
+import * as ImagePicker from "expo-image-picker";
+import { useRouter } from "expo-router";
 import { useFormik } from "formik";
 import React, { useState } from "react";
 import {
@@ -20,88 +22,19 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
-// Validation Schema using Yup
+const AddPropertyForm: React.FC = () => {
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const queryClient = new QueryClient();
+  const router = useRouter();
 
-interface EditPropertyFormProps {
-  propertyId: string; // The ID of the property to edit
-}
-
-const EditPropertyForm: React.FC<EditPropertyFormProps> = ({ propertyId }) => {
-  // State to hold the initial property data fetched from the API
-  const [initialPropertyData, setInitialPropertyData] =
-    useState<Property | null>(null);
-  const [isLoadingProperty, setIsLoadingProperty] = useState<boolean>(true);
-
-  // Placeholder for useQuery to fetch property data
-  // const { data: propertyData, isLoading: isLoadingProperty, error: fetchError } = useQuery<Property, Error>({
-  //   queryKey: ['property', propertyId],
-  //   queryFn: async () => {
-  //     // Replace with your actual API call to fetch property by ID
-  //     console.log('Fetching property with ID:', propertyId);
-  //     return new Promise((resolve, reject) => {
-  //       setTimeout(() => {
-  //         if (propertyId === 'mock-property-123') { // Simulate fetching a specific property
-  //           resolve({
-  //             _id: 'mock-property-123',
-  //             title: 'Cozy 2-Bedroom Apartment',
-  //             description: 'A beautiful apartment in the heart of the city with great amenities.',
-  //             propertyType: 'apartment',
-  //             bedrooms: 2,
-  //             bathrooms: 1,
-  //             toilets: 2,
-  //             furnished: true,
-  //             price: 350000,
-  //             billingCycle: 'yearly',
-  //             fees: { caution: 25000 },
-  //             features: ['Water Supply', 'Electricity', 'Parking'],
-  //             images: [
-  //               'https://placehold.co/150x100/ADD8E6/000000?text=Existing%20Image%201',
-  //               'https://placehold.co/150x100/ADD8E6/000000?text=Existing%20Image%202',
-  //             ],
-  //             location: {
-  //               address: '123 Main Street',
-  //               city: 'Lagos',
-  //               state: 'Lagos State',
-  //               country: 'Nigeria',
-  //             },
-  //             isAvailable: true,
-  //             availableFrom: new Date(),
-  //           });
-  //         } else {
-  //           reject(new Error('Property not found!'));
-  //         }
-  //       }, 1000);
-  //     });
-  //   },
-  //   enabled: !!propertyId, // Only fetch if propertyId is provided
-  // });
-
-  // Placeholder for useMutation for updating property
-  const { mutateAsync, isPending: isUpdating } = useMutation({
-    mutationKey: ["updateProperty"],
-    mutationFn: async (updatedPropertyData: Partial<Property>) => {
-      // Replace with your actual API call to update property
-      console.log("Updating property data:", updatedPropertyData);
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          if (Math.random() > 0.1) {
-            // Simulate success 90% of the time
-            resolve({
-              success: true,
-              message: "Property updated successfully!",
-            });
-          } else {
-            throw new Error("Failed to update property. Please try again.");
-          }
-        }, 1500);
-      });
-    },
+  // Placeholder for useMutation
+  const { mutateAsync, isPending } = useMutation({
+    mutationKey: ["addProperty"],
+    mutationFn: createProperty,
   });
 
-  const isPending = isLoadingProperty || isUpdating; // Overall pending state
-
   const formik = useFormik({
-    initialValues: initialPropertyData || {
+    initialValues: {
       title: "",
       description: "",
       propertyType: "",
@@ -110,12 +43,12 @@ const EditPropertyForm: React.FC<EditPropertyFormProps> = ({ propertyId }) => {
       toilets: 0,
       furnished: false,
       price: 0,
-      billingCycle: "yearly",
+      billingCycle: "yearly", // Default as per schema
       fees: {
         caution: 0,
       },
-      features: [],
-      images: [],
+      features: [] as string[],
+      images: [] as string[], // Placeholder for image URLs
       location: {
         address: "",
         city: "",
@@ -124,21 +57,56 @@ const EditPropertyForm: React.FC<EditPropertyFormProps> = ({ propertyId }) => {
       },
       isAvailable: true,
     },
-    enableReinitialize: true, // Reinitialize form when initialPropertyData changes
-    validationSchema: EditPropertySchema,
+    validationSchema: AddPropertySchema,
     onSubmit: async (values) => {
-      console.log("Form values submitted for update:", values);
       try {
-        const response = await mutateAsync(values); // Pass values to mutation
+        const formData = new FormData();
+
+        // Append images
+        selectedImages.forEach((uri) => {
+          const filename = uri.split("/").pop() || `image-${Date.now()}.jpg`;
+          const match = /\.(\w+)$/.exec(filename);
+          const type = match ? `image/${match[1]}` : `image`;
+
+          formData.append("images", {
+            uri,
+            name: filename,
+            type,
+          } as any);
+        });
+
+        // Append primitive fields
+        Object.entries(values).forEach(([key, val]) => {
+          if (typeof val !== "object" && key !== "isAvailable") {
+            formData.append(key, String(val));
+          }
+        });
+
+        // Manually handle nested fields
+        formData.append("fees", JSON.stringify(values.fees));
+        formData.append("location", JSON.stringify(values.location));
+        formData.append("features", JSON.stringify(values.features));
+        formData.append("isAvailable", JSON.stringify(values.isAvailable));
+
+        const response = await mutateAsync(formData);
+        console.log(values.fees);
+
         Toast.show({
           type: "success",
-          text1: response.message,
+          text1: response?.message,
         });
-        // Optionally navigate or show success message
+
+        formik.resetForm();
+        queryClient.invalidateQueries({
+          predicate: (query) => query.queryKey[0] === "my-properties",
+        });
+
+        router.push("/MyProperties");
+        setSelectedImages([]);
       } catch (error: any) {
         Toast.show({
           type: "error",
-          text1: error.message || "An error occurred during update",
+          text1: error?.message || "Upload failed.",
         });
       }
     },
@@ -157,57 +125,46 @@ const EditPropertyForm: React.FC<EditPropertyFormProps> = ({ propertyId }) => {
     }
   };
 
-  // Placeholder for adding images (you'd integrate image picker/upload here)
-  const addDummyImage = () => {
-    const dummyImageUrl = `https://placehold.co/150x100/ADD8E6/000000?text=New%20Image%20${
-      formik.values.images.length + 1
-    }`;
-    formik.setFieldValue("images", [...formik.values.images, dummyImageUrl]);
+  const addRealImage = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      Toast.show({
+        type: "error",
+        text1: "Permission denied",
+        text2: "You need to allow access to your media library.",
+      });
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: false,
+      quality: 0.7,
+    });
+
+    if (!result.canceled && result.assets?.length > 0) {
+      const uri = result.assets[0].uri;
+      setSelectedImages((prev) => [...prev, uri]);
+
+      // Also update Formik field
+      formik.setFieldValue("images", [...formik.values.images, uri]);
+
+      Toast.show({
+        type: "success",
+        text1: "Image selected!",
+      });
+    }
   };
-
-  // Placeholder for removing images
-  const removeImage = (indexToRemove: number) => {
-    formik.setFieldValue(
-      "images",
-      formik.values.images.filter((_, index) => index !== indexToRemove)
-    );
-  };
-
-  if (isLoadingProperty) {
-    return (
-      <SafeAreaView className="flex-1 bg-blue-50 justify-center items-center">
-        <ActivityIndicator size="large" color="#2563EB" />
-        <Text className="text-blue-700 mt-4 text-lg">
-          Loading Property Data...
-        </Text>
-      </SafeAreaView>
-    );
-  }
-
-  if (!initialPropertyData && !isLoadingProperty) {
-    return (
-      <SafeAreaView className="flex-1 bg-blue-50 justify-center items-center">
-        <Text className="text-red-500 text-lg">
-          Property not found or an error occurred.
-        </Text>
-        <TouchableOpacity
-          onPress={() => console.log("Navigate back or retry")}
-          className="bg-blue-600 py-3 px-6 rounded-lg mt-4"
-        >
-          <Text className="text-white text-base">Go Back</Text>
-        </TouchableOpacity>
-      </SafeAreaView>
-    );
-  }
 
   return (
-    <SafeAreaView className="flex-1 bg-blue-50">
-      <ScrollView className="flex-1 p-5">
+    <SafeAreaView className="flex-1 bg-blue-50 pb-10">
+      <ScrollView className="flex-1 p-5 mb-10">
         <Text className="text-center text-blue-800 text-3xl font-bold mb-6">
-          Edit Property
+          Add New Property
         </Text>
         <Text className="text-center text-gray-600 text-base mb-8">
-          Update the details of your listed property.
+          Fill in the details to list your property for rent.
         </Text>
 
         {/* Property Details */}
@@ -344,9 +301,12 @@ const EditPropertyForm: React.FC<EditPropertyFormProps> = ({ propertyId }) => {
             placeholder="e.g., 50000 (optional)"
             value={formik.values.fees.caution.toString()}
             onChangeText={(text) =>
-              formik.setFieldValue("fees.caution", parseFloat(text) || 0)
+              formik.setFieldValue("fees", {
+                ...formik.values.fees,
+                caution: parseFloat(text) || 0,
+              })
             }
-            onBlur={formik.handleBlur("fees.caution")}
+            onBlur={() => formik.setFieldTouched("fees.caution", true)}
             error={formik.errors.fees?.caution}
             touched={formik.touched.fees?.caution}
             keyboardType="numeric"
@@ -395,7 +355,7 @@ const EditPropertyForm: React.FC<EditPropertyFormProps> = ({ propertyId }) => {
             Property Images
           </Text>
           <TouchableOpacity
-            onPress={addDummyImage}
+            onPress={addRealImage}
             className="bg-blue-500 py-3 rounded-lg flex-row items-center justify-center mb-4"
             disabled={isPending}
           >
@@ -411,23 +371,12 @@ const EditPropertyForm: React.FC<EditPropertyFormProps> = ({ propertyId }) => {
           )}
           <View className="flex-row flex-wrap justify-center">
             {formik.values.images.map((imageUri, index) => (
-              <View
+              <Image
                 key={index}
-                className="relative w-24 h-24 m-1 rounded-lg border border-gray-300"
-              >
-                <Image
-                  source={{ uri: imageUri }}
-                  className="w-full h-full rounded-lg"
-                  resizeMode="cover"
-                />
-                <TouchableOpacity
-                  onPress={() => removeImage(index)}
-                  className="absolute -top-2 -right-2 bg-red-500 rounded-full p-1"
-                  disabled={isPending}
-                >
-                  <Text className="text-white text-xs font-bold">✖️</Text>
-                </TouchableOpacity>
-              </View>
+                source={{ uri: imageUri }}
+                className="w-24 h-24 m-1 rounded-lg border border-gray-300"
+                resizeMode="cover"
+              />
             ))}
           </View>
           {formik.values.images.length > 0 && (
@@ -486,10 +435,6 @@ const EditPropertyForm: React.FC<EditPropertyFormProps> = ({ propertyId }) => {
             editable={!isPending}
             icon={<Text className="text-blue-600 text-lg">🌍</Text>}
           />
-          <Text className="text-gray-500 text-xs mt-1 ml-2">
-            * For real app, integrate Google Places API for address and
-            coordinates.
-          </Text>
         </View>
 
         {/* Availability */}
@@ -508,16 +453,16 @@ const EditPropertyForm: React.FC<EditPropertyFormProps> = ({ propertyId }) => {
 
         {/* Submit Button */}
         <TouchableOpacity
-          onPress={() => formik.handleSubmit()}
+          onPress={() => {
+            formik.handleSubmit();
+          }}
           className="bg-blue-600 py-4 rounded-xl flex-row items-center justify-center shadow-md mb-10"
           disabled={isPending}
         >
           {isPending ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <Text className="text-white text-lg font-bold">
-              Update Property
-            </Text>
+            <Text className="text-white text-lg font-bold">Add Property</Text>
           )}
         </TouchableOpacity>
       </ScrollView>
@@ -525,4 +470,4 @@ const EditPropertyForm: React.FC<EditPropertyFormProps> = ({ propertyId }) => {
   );
 };
 
-export default EditPropertyForm;
+export default AddPropertyForm;

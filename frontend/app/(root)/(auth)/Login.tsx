@@ -4,7 +4,7 @@ import { loginAction } from "@/redux/slice/authSlice";
 import { LoginAPI } from "@/services/User/userServices";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMutation } from "@tanstack/react-query";
-import { Link, router } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useFormik } from "formik";
 import React, { useState } from "react";
 import {
@@ -34,8 +34,9 @@ const validationSchema = Yup.object({
 
 const Login = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
 
-  const [passvisible, setPassVisible] = useState(false);
+  const [passVisible, setPassVisible] = useState(false);
 
   const { mutateAsync, isPending } = useMutation({
     mutationKey: ["login"],
@@ -52,40 +53,47 @@ const Login = () => {
       password: "",
     },
     validationSchema,
-    onSubmit: (values) => {
-      mutateAsync(values)
-        .then((response) => {
-          AsyncStorage.setItem(
-            "user",
-            JSON.stringify({
-              token: response.token, // Save the token for future authenticated requests
-              user: {
-                id: response.user.id,
-                name: response.user.name,
-                email: response.user.email,
-              },
-            })
-          );
+    onSubmit: async (values) => {
+      try {
+        const response = await mutateAsync(values);
+        await AsyncStorage.setItem(
+          "user",
+          JSON.stringify({
+            token: response.token, // Save the token for future authenticated requests
+            user: {
+              id: response.user.id,
+              name: `${response.user.firstName} ${response.user.lastName}`,
+              role: response.user.role,
+              email: response.user.email,
+            },
+          })
+        );
 
-          dispatch(loginAction(response));
-          Toast.show({
-            type: "success",
-            text1: response.message,
-            text2: "Welcome Back 👋",
-          });
-          formik.resetForm();
-          setTimeout(() => {
-            router.replace("/");
-          }, 1500);
-        })
-        .catch((error) => {
-          console.log("An Error occured", error);
-          Toast.show({
-            type: "error",
-            text1: "Login Failed",
-            text2: error.message,
-          });
+        const role = response.user.role;
+
+        dispatch(loginAction({ ...response, role }));
+
+        setTimeout(() => {
+          if (role === "renter") {
+            router.replace("/indexTenant");
+          } else if (role === "landlord") {
+            router.replace("/indexLandlord");
+          } else {
+            // fallback or error handling
+            Toast.show({
+              type: "error",
+              text1: "Unknown role",
+            });
+          }
+        }, 500);
+      } catch (error: any) {
+        console.log("An Error occurred", error);
+        Toast.show({
+          type: "error",
+          text1: "Login Failed",
+          text2: error.message,
         });
+      }
     },
   });
 
@@ -130,64 +138,46 @@ const Login = () => {
                 </Text>
               )}
               {/* password */}
-              <View className="w-full py-3 px-4 bg-gray-50 rounded-full mb-2 flex-row items-center">
-                <Image source={icons.shield} className="w-5 h-5" />
+              <View className="bg-white py-3 rounded-full flex flex-row items-center mb-6">
+                <Image source={icons.shield} className="size-5 ml-5" />
                 <TextInput
                   editable={!isPending}
-                  autoCapitalize="none"
-                  placeholder="🔑 Enter your password here"
+                  secureTextEntry={!passVisible}
                   placeholderTextColor="gray"
-                  className="text-sm font-rubik text-black-300 ml-2"
-                  style={{ flex: 1 }}
-                  secureTextEntry
+                  placeholder="🔑 Password"
+                  className="font-rubix-medium flex-1"
                   onChangeText={formik.handleChange("password")}
                   onBlur={formik.handleBlur("password")}
-                  value={formik.values.password}
                 />
                 <TouchableOpacity
-                  onPress={() => setPassVisible(!passvisible)}
+                  onPress={() => setPassVisible(!passVisible)}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
                   <Image
-                    source={passvisible ? icons.eye : icons.eyeOff}
+                    source={passVisible ? icons.eye : icons.eyeOff}
                     className="size-6 mr-5"
                   />
                 </TouchableOpacity>
               </View>
-              {/* <View className='bg-white py-3 rounded-full flex flex-row items-center mb-6'>
-                    <Image source={icons.shield} className='size-5 ml-5' />
-                    <TextInput
-                      editable={!isPending}
-                      // secureTextEntry={!passvisible}
-                      placeholderTextColor="gray"
-                      placeholder='🔑 Password'
-                      className='font-rubix-medium flex-1'
-                      onChangeText={formik.handleChange("password")}
-                      onBlur={formik.handleBlur("password")}
-                    />
-                    <TouchableOpacity
-                      onPress={() => setPassVisible(!passvisible)}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    >
-                      <Image
-                        source={passvisible ? icons.eye : icons.eyeOff}
-                        className='size-6 mr-5'
-                      />
-                    </TouchableOpacity>
-                  </View> */}
               {formik.touched.password && formik.errors.password && (
                 <Text className="text-red-500 text-sm mt-1">
                   {formik.errors.password}
                 </Text>
               )}
 
-              {/* forgot passowrd */}
-              <View className="flex  items-end">
+              {/* forgot password */}
+              <View className="flex items-end">
                 <Link
                   href="/ForgotPassword"
                   className="font-rubik-extrabold font-bold text-base "
                 >
                   Forgot password?
+                </Link>
+                <Link
+                  href="/VerifyEmail"
+                  className="font-rubik-extrabold font-bold text-base "
+                >
+                  Verify Email?
                 </Link>
               </View>
               {/* login button */}

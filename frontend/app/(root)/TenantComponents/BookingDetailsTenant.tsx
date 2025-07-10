@@ -1,14 +1,11 @@
-import {
-  approveBooking,
-  getBookingByLandlord,
-  rejectBooking,
-} from "@/services/bookings/bookingsService";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import ActionLinkButton from "@/components/ActionButtonLink";
+import { getBooking } from "@/services/bookings/bookingsService";
+import { Booking } from "@/types/Booking.types";
+import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -17,78 +14,23 @@ import {
 import Animated, {
   FadeIn,
   FadeInUp,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Toast from "react-native-toast-message";
 
-// Define types for populated fields based on your controller
-interface LandlordDetails {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
-
-interface TenantDetails {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
-
-interface PropertyDetailsForBooking {
-  _id: string;
-  title: string;
-  propertyType: string;
-  description: string;
-  images: string[];
-  fees: {
-    agency?: number;
-    caution: number;
-  };
-  price: number;
-  location: {
-    address: string;
-    city: string;
-    state: string;
-    country: string;
-    coordinates: [number, number];
-  };
-}
-
-// Define the type for a Booking, matching your Mongoose schema (with populated fields)
-interface Booking {
-  _id: string;
-  property: PropertyDetailsForBooking;
-  tenant: TenantDetails;
-  landlord: LandlordDetails; // This would be the current landlord's details if populated
-  message?: string;
-  status: "pending" | "approved" | "rejected" | "cancelled";
-  rentStart: Date;
-  rentEnd: Date;
-  isPaid: boolean;
-  createdAt: Date;
-}
-
-const LandlordBookingDetailsScreen: React.FC = () => {
+const BookingDetailsScreen: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
-  const [isProcessingAction, setIsProcessingAction] = useState<boolean>(false);
+  const [shouldFadeIn, setShouldFadeIn] = useState(false);
   const { id } = useLocalSearchParams() as { id: string };
-  const router = useRouter();
 
   const bookingId = id;
 
-  const queryClient = useQueryClient(); // Used for invalidating queries after mutations
+  const router = useRouter();
 
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["LandlordsBooking", bookingId],
-    queryFn: () => getBookingByLandlord(bookingId),
-  });
-
-  const booking = data?.booking;
+  // Animation for image carousel
   const imageOpacity = useSharedValue(1);
   const imageAnimatedStyle = useAnimatedStyle(() => {
     return {
@@ -96,27 +38,48 @@ const LandlordBookingDetailsScreen: React.FC = () => {
     };
   });
 
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["TenantBookingDetails", bookingId],
+    queryFn: () => getBooking(bookingId),
+  });
+
+  const booking = data?.booking;
+
+  // Step 1: Named function to update state
+  const updateImageIndex = (index: number) => {
+    setCurrentImageIndex(index);
+    setShouldFadeIn(true);
+  };
+
+  // Step 2: Wrap transition
+  const switchImage = (newIndex: number) => {
+    imageOpacity.value = withTiming(0, { duration: 150 }, () => {
+      runOnJS(updateImageIndex)(newIndex);
+    });
+  };
+
   const handleNextImage = () => {
-    if (booking && booking?.property?.images.length > 0) {
-      imageOpacity.value = withTiming(0, { duration: 150 }, () => {
-        setCurrentImageIndex(
-          (prevIndex) => (prevIndex + 1) % booking?.property?.images?.length
-        );
-        imageOpacity.value = withTiming(1, { duration: 150 });
-      });
-    }
+    if (!booking?.images?.length) return;
+    const next = (currentImageIndex + 1) % booking.images.length;
+    switchImage(next);
   };
 
   const handlePrevImage = () => {
-    if (booking && booking?.property?.images?.length > 0) {
-      imageOpacity.value = withTiming(0, { duration: 150 }, () => {
-        setCurrentImageIndex((prevIndex) =>
-          prevIndex === 0 ? booking?.property?.images.length - 1 : prevIndex - 1
-        );
-        imageOpacity.value = withTiming(1, { duration: 150 });
-      });
-    }
+    if (!booking?.images?.length) return;
+    const prev =
+      currentImageIndex === 0
+        ? booking.images.length - 1
+        : currentImageIndex - 1;
+    switchImage(prev);
   };
+
+  // Step 3: Fade back in after image is updated
+  useEffect(() => {
+    if (shouldFadeIn) {
+      imageOpacity.value = withTiming(1, { duration: 150 });
+      setShouldFadeIn(false);
+    }
+  }, [currentImageIndex, shouldFadeIn, imageOpacity]);
 
   const getStatusColor = (status: Booking["status"]) => {
     switch (status) {
@@ -130,74 +93,6 @@ const LandlordBookingDetailsScreen: React.FC = () => {
         return "text-gray-500";
       default:
         return "text-gray-700";
-    }
-  };
-
-  const { mutateAsync: approve } = useMutation({
-    mutationKey: ["approveBooking"],
-    mutationFn: approveBooking,
-    onError: (err: any) => {
-      Toast.show({
-        type: "error",
-        text1: err.message || "Failed to update booking status.",
-      });
-      setIsProcessingAction(false);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["LandlordBookings"] });
-    },
-  });
-  const { mutateAsync: reject } = useMutation({
-    mutationKey: ["rejectBooking"],
-    mutationFn: rejectBooking,
-    onError: (err: any) => {
-      Toast.show({
-        type: "error",
-        text1: err.message || "Failed to update booking status.",
-      });
-      setIsProcessingAction(false);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["LandlordBookings"] });
-    },
-  });
-
-  const handleApprove = async () => {
-    setIsProcessingAction(true);
-    await approve(bookingId);
-    setTimeout(() => {
-      Toast.show({
-        type: "success",
-        text1: "Booking Approved Successfully",
-      });
-      setIsProcessingAction(false);
-      refetch();
-    }, 1000);
-  };
-
-  const handleReject = async () => {
-    setIsProcessingAction(true);
-    await reject(bookingId);
-
-    setTimeout(() => {
-      Toast.show({
-        type: "success",
-        text1: "Booking rejected successfully",
-      });
-      setIsProcessingAction(false);
-      refetch();
-    }, 1000);
-  };
-
-  const handleMessageTenant = () => {
-    if (booking?.tenant?.email) {
-      Alert.alert(
-        "Message Tenant",
-        `Simulating messaging tenant: ${booking?.tenant?.email}`
-      );
-      // In a real app, this would open an email client or an in-app chat feature.
-    } else {
-      Alert.alert("Error", "Tenant email not available.");
     }
   };
 
@@ -216,7 +111,7 @@ const LandlordBookingDetailsScreen: React.FC = () => {
     return (
       <SafeAreaView className="flex-1 bg-blue-50 justify-center items-center p-5">
         <Text className="text-red-500 text-lg text-center mb-4">
-          {error instanceof Error ? error.message : "Property not found."}
+          {error instanceof Error ? error.message : "Booking not found."}
         </Text>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -246,15 +141,15 @@ const LandlordBookingDetailsScreen: React.FC = () => {
           entering={FadeInUp.delay(300).duration(600)}
           className="w-full h-72 bg-gray-200 relative"
         >
-          {booking?.property?.images && booking.property?.images.length > 0 ? (
+          {booking.property.images && booking.property.images.length > 0 ? (
             <>
               <Animated.Image
-                source={{ uri: booking?.property?.images[currentImageIndex] }}
+                source={{ uri: booking.property.images[currentImageIndex] }}
                 className="w-full h-full"
                 resizeMode="cover"
                 style={imageAnimatedStyle}
               />
-              {booking?.property?.images.length > 1 && (
+              {booking.property.images.length > 1 && (
                 <>
                   <TouchableOpacity
                     onPress={handlePrevImage}
@@ -269,18 +164,16 @@ const LandlordBookingDetailsScreen: React.FC = () => {
                     <Text className="text-white text-lg">▶️</Text>
                   </TouchableOpacity>
                   <View className="absolute bottom-2 left-0 right-0 flex-row justify-center">
-                    {booking?.property?.images.map(
-                      (_: string, index: number) => (
-                        <View
-                          key={index}
-                          className={`w-2 h-2 rounded-full mx-1 ${
-                            index === currentImageIndex
-                              ? "bg-blue-500"
-                              : "bg-gray-300"
-                          }`}
-                        />
-                      )
-                    )}
+                    {booking.property.images.map((_: string, index: number) => (
+                      <View
+                        key={index}
+                        className={`w-2 h-2 rounded-full mx-1 ${
+                          index === currentImageIndex
+                            ? "bg-blue-500"
+                            : "bg-gray-300"
+                        }`}
+                      />
+                    ))}
                   </View>
                 </>
               )}
@@ -301,7 +194,7 @@ const LandlordBookingDetailsScreen: React.FC = () => {
             className="bg-white p-4 rounded-xl shadow-md mb-4"
           >
             <Text className="text-blue-800 text-2xl font-bold mb-2">
-              Booking for: {booking?.property?.title}
+              Booking for: {booking.property.title}
             </Text>
             <View className="flex-row justify-between items-center mb-2">
               <Text className="text-gray-600 text-base">Status:</Text>
@@ -339,43 +232,17 @@ const LandlordBookingDetailsScreen: React.FC = () => {
               className="bg-white p-4 rounded-xl shadow-md mb-4"
             >
               <Text className="text-blue-700 text-xl font-bold mb-2">
-                Tenant&apos;s Message
+                Your Message
               </Text>
               <Text className="text-gray-700 text-base leading-relaxed italic">
-                &apos; {booking.message} &apos;
+                &quot;{booking.message}&quot;
               </Text>
             </Animated.View>
           )}
 
-          {/* Tenant Contact Info */}
-          <Animated.View
-            entering={FadeInUp.delay(600).duration(600)}
-            className="bg-blue-100 p-4 rounded-xl shadow-md mb-4"
-          >
-            <Text className="text-blue-700 text-xl font-bold mb-2">
-              Tenant Details
-            </Text>
-            <Text className="text-gray-700 text-base">
-              Name: {booking.tenant.firstName} {booking.tenant.lastName}
-            </Text>
-            <Text className="text-gray-700 text-base">
-              Email: {booking.tenant.email}
-            </Text>
-            <TouchableOpacity
-              onPress={handleMessageTenant}
-              className="bg-blue-600 py-3 rounded-lg flex-row items-center justify-center mt-4 shadow-md"
-              disabled={isProcessingAction}
-            >
-              <Text className="text-white text-lg font-semibold mr-2">
-                Message Tenant
-              </Text>
-              <Text className="text-white text-xl">✉️</Text>
-            </TouchableOpacity>
-          </Animated.View>
-
           {/* Property Details Snapshot */}
           <Animated.View
-            entering={FadeInUp.delay(700).duration(600)}
+            entering={FadeInUp.delay(600).duration(600)}
             className="bg-white p-4 rounded-xl shadow-md mb-4"
           >
             <Text className="text-blue-700 text-xl font-bold mb-2">
@@ -410,48 +277,63 @@ const LandlordBookingDetailsScreen: React.FC = () => {
               {booking.property.location.state}
             </Text>
             <Text className="text-gray-700 text-base ml-2">
-              {booking.property.location.country}
+              � {booking.property.location.country}
             </Text>
           </Animated.View>
 
-          {/* Landlord Action Buttons */}
-          {booking.status === "pending" && (
-            <Animated.View
-              entering={FadeInUp.delay(800).duration(600)}
-              className="flex-row justify-around mt-4 mb-10"
-            >
+          {/* Landlord Info */}
+          <Animated.View
+            entering={FadeInUp.delay(700).duration(600)}
+            className="bg-blue-100 p-4 rounded-xl shadow-md mb-6"
+          >
+            <Text className="text-blue-700 text-xl font-bold mb-2">
+              Contact Landlord
+            </Text>
+            <Text className="text-gray-700 text-base">
+              Name: {booking.landlord.firstName} {booking.landlord.lastName}
+            </Text>
+            <Text className="text-gray-700 text-base mb-2">
+              Email: {booking.landlord.email}
+            </Text>
+            <ActionLinkButton
+              label="Message Landlord"
+              type="email"
+              destination={`${booking.landlord.email}`}
+              icon={<Text className="text-green-600 text-2xl">✉️</Text>}
+              description="Message landlord for more details"
+            />
+          </Animated.View>
+
+          {/* Action Buttons (e.g., Cancel Booking, Make Payment) */}
+          <Animated.View
+            entering={FadeInUp.delay(800).duration(600)}
+            className="flex-row justify-around mb-10"
+          >
+            {booking.status === "pending" && (
               <TouchableOpacity
-                onPress={() => handleApprove()}
-                className="bg-green-500 py-3 px-6 rounded-lg shadow-md flex-1 mr-2"
-                disabled={isProcessingAction}
+                onPress={() => console.log("Cancel Booking")}
+                className="bg-red-500 py-3 px-6 rounded-lg shadow-md"
               >
-                {isProcessingAction ? (
-                  <ActivityIndicator color="#FFFFFF" />
-                ) : (
-                  <Text className="text-white text-base font-semibold text-center">
-                    Approve Booking
-                  </Text>
-                )}
+                <Text className="text-white text-base font-semibold">
+                  Cancel Booking
+                </Text>
               </TouchableOpacity>
+            )}
+            {booking.status === "approved" && !booking.isPaid && (
               <TouchableOpacity
-                onPress={() => handleReject()}
-                className="bg-red-500 py-3 px-6 rounded-lg shadow-md flex-1 ml-2"
-                disabled={isProcessingAction}
+                onPress={() => console.log("Proceed to Payment")}
+                className="bg-green-500 py-3 px-6 rounded-lg shadow-md"
               >
-                {isProcessingAction ? (
-                  <ActivityIndicator color="#FFFFFF" />
-                ) : (
-                  <Text className="text-white text-base font-semibold text-center">
-                    Reject Booking
-                  </Text>
-                )}
+                <Text className="text-white text-base font-semibold">
+                  Make Payment
+                </Text>
               </TouchableOpacity>
-            </Animated.View>
-          )}
+            )}
+          </Animated.View>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-export default LandlordBookingDetailsScreen;
+export default BookingDetailsScreen;

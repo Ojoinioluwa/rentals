@@ -87,8 +87,9 @@ const MyBookingsScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    setTotalBookings(bookings?.length);
-  }, [bookings]);
+    setTotalBookings(data?.totalBookings);
+    setTotalPages(data?.totalPages);
+  }, [data]);
 
   const { mutateAsync: cancel } = useMutation({
     mutationKey: ["rejectBooking"],
@@ -129,7 +130,7 @@ const MyBookingsScreen: React.FC = () => {
 
   const handleBookingPress = (bookingId: string) => {
     router.push({
-      pathname: "/BookingDetailsTenant",
+      pathname: "/TenantComponents/BookingDetailsTenant",
       params: { id: bookingId },
     });
   };

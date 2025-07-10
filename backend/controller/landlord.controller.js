@@ -17,40 +17,64 @@ const landlordController = {
             furnished,
             price,
             billingCycle,
-            caution,
-            features,
-            images,
-            location,
-            isAvailable
+            isAvailable,
         } = req.body;
 
-        console.log(req.body)
+        // Parse nested JSON fields from multipart/form-data
+        const location = JSON.parse(req.body.location);
+        const features = JSON.parse(req.body.features || "[]");
+        const fees = JSON.parse(req.body.fees);
+        const caution = parseFloat(req.body.caution || "0");
 
 
-        console.log("I was here")
-        if (allFieldsRequired(title, description, propertyType, price, billingCycle, images, location?.address, location?.city, location?.state, location?.country, isAvailable
-        )) {
+        const images = req.files?.map((file) => file.path); // Or `file.filename` depending on storage
+
+        if (!images || images.length === 0) {
             return res.status(400).json({
                 success: false,
-                message: "All fields are required"
-            })
-
+                message: "At least one image is required.",
+            });
         }
 
-        const propertyExist = await Property.findOne({ title, landlord: req.user._id })
+        if (
+            allFieldsRequired(
+                title,
+                description,
+                propertyType,
+                price,
+                billingCycle,
+                location?.address,
+                location?.city,
+                location?.state,
+                location?.country,
+                isAvailable
+            )
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "All fields are required",
+            });
+        }
+
+        const propertyExist = await Property.findOne({
+            title,
+            landlord: req.user._id,
+        });
 
         if (propertyExist) {
             return res.status(400).json({
                 success: false,
-                message: "YOu have already created a property with this name",
-            })
-
+                message: "You have already created a property with this name",
+            });
         }
 
+        const coordinates = await getCoordinates(
+            location.city,
+            location.state,
+            process.env.GEO_API_KEY
+        );
 
-        const coordinates = await getCoordinates(location.city, location.state, process.env.GEO_API_KEY);
-
-        if (!coordinates || !coordinates.latitude || !coordinates.longitude) {
+        if (!coordinates?.latitude || !coordinates?.longitude) {
             return res.status(400).json({
                 success: false,
                 message: "Could not determine coordinates from location",
@@ -63,20 +87,9 @@ const landlordController = {
             state: location.state,
             country: location.country,
             coordinates: {
-                coordinates: [coordinates.longitude, coordinates.latitude], // ⚠️ Note the order: [lng, lat]
+                coordinates: [coordinates.longitude, coordinates.latitude],
             },
         };
-
-
-        // if (
-        //     !Array.isArray(location.coordinates) || location.coordinates.length !== 2
-        // ) {
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: "All fields are required"
-        //     })
-        // }
-
 
         const property = await Property.create({
             landlord: req.user._id,
@@ -91,21 +104,21 @@ const landlordController = {
             billingCycle,
             fees: {
                 agency: price * 0.02,
-                caution: caution || 0
+                caution: fees.caution,
             },
             features,
             images,
             location: locationMain,
-            isAvailable
-        })
+            isAvailable,
+        });
 
         return res.status(201).json({
             success: true,
             message: "Congratulations Property added Successfully",
-            property
-        })
-
+            property,
+        });
     }),
+
     getMyProperties: asyncHandler(async (req, res) => {
 
 
@@ -284,7 +297,6 @@ const landlordController = {
     // getSingleProperty
     getSingleProperty: asyncHandler(async (req, res) => {
         const { id } = req.params;
-        console.log("I was here")
 
         const property = await Property.findOne({ _id: id, landlord: req.user._id }).populate("landlord", "firstName email lastName").lean();
 
@@ -305,7 +317,6 @@ const landlordController = {
     uploadImages: asyncHandler(async (req, res) => {
         const { id } = req.params;
         const files = req.files; // multer puts files in req.files
-        console.log("FILES RECEIVED:", req.files);
 
 
         if (!files || files.length === 0) {

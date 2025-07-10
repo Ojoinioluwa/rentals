@@ -1,27 +1,8 @@
+import { LoginResponse, RegisterResponse, User, VerifyEmail, VerifyResponse } from "@/types/user.types";
 import getUserFromStorage from "@/utils/getUserFromStorage";
 import BASE_URL from "@/utils/url";
 import axios, { isAxiosError } from "axios";
 
-type User = {
-    id: string;
-    email: string;
-    password: string;
-    name: string;
-    phoneNumber: string;
-    address: string;
-    token?: string;
-};
-
-type LoginResponse = {
-    message: string;
-    token: string;
-    user: User;
-};
-
-type RegisterResponse = {
-    message: string;
-    user?: User;
-};
 
 export const LoginAPI = async ({
     email,
@@ -50,14 +31,19 @@ export const LoginAPI = async ({
 export const RegisterAPI = async ({
     email,
     password,
-    name,
+    firstName,
+    lastName,
     phoneNumber,
     address,
+    role
 }: Omit<User, "id">): Promise<RegisterResponse> => {
     try {
         const response = await axios.post(
             `${BASE_URL}/auth/register`,
-            { email, password, name, phoneNumber, address },
+            {
+                email, password, firstName,
+                lastName, phoneNumber, address, role
+            },
             { headers: { "Content-Type": "application/json" } }
         );
         return response.data;
@@ -71,13 +57,13 @@ export const RegisterAPI = async ({
     }
 };
 
-export const GetProfileAPI = async (): Promise<User> => {
+export const GetProfileAPI = async () => {
     try {
         const user = await getUserFromStorage();
         const token = user?.token;
         if (!token) throw new Error("No user token found");
 
-        const response = await axios.get(`${BASE_URL}/auth/getProfile`, {
+        const response = await axios.get(`${BASE_URL}/getUserProfile`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -95,7 +81,8 @@ export const GetProfileAPI = async (): Promise<User> => {
 
 export const UpdateProfile = async ({
     email,
-    name,
+    firstName,
+    lastName,
     phoneNumber,
     address,
 }: Partial<User>): Promise<User> => {
@@ -106,7 +93,10 @@ export const UpdateProfile = async ({
 
         const response = await axios.put(
             `${BASE_URL}`,
-            { email, name, phoneNumber, address },
+            {
+                email, firstName,
+                lastName, phoneNumber, address
+            },
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -123,3 +113,17 @@ export const UpdateProfile = async ({
         throw new Error("An unexpected error occurred while updating profile");
     }
 };
+
+export const VerifyEmailAPI = async ({ email, verificationCode }: VerifyEmail): Promise<VerifyResponse> => {
+    try {
+        const response = await axios.post(`${BASE_URL}/auth/verify-user`, { email, verificationCode })
+        return response.data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            const message = error.response?.data?.message || "Failed to Verify user";
+            console.error("VerifyEmailAPI Error:", message, error.response?.data);
+            throw new Error(message);
+        }
+        throw new Error("An unexpected error occurred while Verifying Email");
+    }
+}

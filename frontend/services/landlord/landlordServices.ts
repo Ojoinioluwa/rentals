@@ -49,10 +49,15 @@ type MyPropertyQuery = {
 
 
 // Create property
-export const createProperty = async (data: Property) => {
+export const createProperty = async (data: FormData) => {
     try {
         const headers = await getAuthHeaders();
-        const res = await axios.post(`${BASE_URL}/properties/landlord/create`, data, { headers });
+        const res = await axios.post(`${BASE_URL}/properties/landlord/create`, data, {
+            headers: {
+                ...headers,
+                "Content-Type": "multipart/form-data",
+            },
+        });
         return res.data;
     } catch (error) {
         if (isAxiosError(error)) {

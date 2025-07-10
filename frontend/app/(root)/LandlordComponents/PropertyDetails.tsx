@@ -1,8 +1,8 @@
 import { DetailItem } from "@/components/DetailItem";
-import { getPropertyAllById } from "@/services/property/propertyService";
+import { getPropertyById } from "@/services/landlord/landlordServices";
 import { useQuery } from "@tanstack/react-query";
-import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -13,18 +13,18 @@ import {
 import Animated, {
   FadeIn,
   FadeInUp,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const TenantPropertyDetailsScreen: React.FC = () => {
+const PropertyDetailsScreen: React.FC = () => {
+  const router = useRouter();
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
-
+  const [shouldFadeIn, setShouldFadeIn] = useState(false);
   const { id } = useLocalSearchParams() as { id: string };
-
-  const propertyId = id;
 
   // Animation for image carousel
   const imageOpacity = useSharedValue(1);
@@ -34,34 +34,49 @@ const TenantPropertyDetailsScreen: React.FC = () => {
     };
   });
 
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["PropertyDetailsTenant", propertyId],
-    queryFn: () => getPropertyAllById(propertyId),
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["property", id],
+    queryFn: () => getPropertyById(id),
+    enabled: !!id,
   });
 
   const property = data?.property;
 
+  // Step 1: Named function to update state
+  const updateImageIndex = (index: number) => {
+    setCurrentImageIndex(index);
+    setShouldFadeIn(true);
+  };
+
+  // Step 2: Wrap transition
+  const switchImage = (newIndex: number) => {
+    imageOpacity.value = withTiming(0, { duration: 150 }, () => {
+      runOnJS(updateImageIndex)(newIndex);
+    });
+  };
+
   const handleNextImage = () => {
-    if (property && property.images.length > 0) {
-      imageOpacity.value = withTiming(0, { duration: 150 }, () => {
-        setCurrentImageIndex(
-          (prevIndex) => (prevIndex + 1) % property.images.length
-        );
-        imageOpacity.value = withTiming(1, { duration: 150 });
-      });
-    }
+    if (!property?.images?.length) return;
+    const next = (currentImageIndex + 1) % property.images.length;
+    switchImage(next);
   };
 
   const handlePrevImage = () => {
-    if (property && property.images.length > 0) {
-      imageOpacity.value = withTiming(0, { duration: 150 }, () => {
-        setCurrentImageIndex((prevIndex) =>
-          prevIndex === 0 ? property.images.length - 1 : prevIndex - 1
-        );
-        imageOpacity.value = withTiming(1, { duration: 150 });
-      });
-    }
+    if (!property?.images?.length) return;
+    const prev =
+      currentImageIndex === 0
+        ? property.images.length - 1
+        : currentImageIndex - 1;
+    switchImage(prev);
   };
+
+  // Step 3: Fade back in after image is updated
+  useEffect(() => {
+    if (shouldFadeIn) {
+      imageOpacity.value = withTiming(1, { duration: 150 });
+      setShouldFadeIn(false);
+    }
+  }, [currentImageIndex, imageOpacity, shouldFadeIn]);
 
   if (isLoading) {
     return (
@@ -80,6 +95,7 @@ const TenantPropertyDetailsScreen: React.FC = () => {
         <Text className="text-red-500 text-lg text-center mb-4">
           {error instanceof Error ? error.message : "Property not found."}
         </Text>
+
         <TouchableOpacity
           onPress={() => router.back()}
           className="bg-blue-600 py-3 px-6 rounded-lg shadow-md"
@@ -91,7 +107,7 @@ const TenantPropertyDetailsScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-blue-50">
+    <SafeAreaView className="flex-1 bg-blue-50 pb-10">
       <ScrollView className="flex-1">
         {/* Back Button */}
         <Animated.View entering={FadeIn.delay(200).duration(500)}>
@@ -108,15 +124,15 @@ const TenantPropertyDetailsScreen: React.FC = () => {
           entering={FadeInUp.delay(300).duration(600)}
           className="w-full h-72 bg-gray-200 relative"
         >
-          {property.images && property.images.length > 0 ? (
+          {property?.images && property?.images?.length > 0 ? (
             <>
               <Animated.Image
-                source={{ uri: property.images[currentImageIndex] }}
+                source={{ uri: property?.images[currentImageIndex] }}
                 className="w-full h-full"
                 resizeMode="cover"
                 style={imageAnimatedStyle}
               />
-              {property.images.length > 1 && (
+              {property?.images.length > 1 && (
                 <>
                   <TouchableOpacity
                     onPress={handlePrevImage}
@@ -131,7 +147,7 @@ const TenantPropertyDetailsScreen: React.FC = () => {
                     <Text className="text-white text-lg">▶️</Text>
                   </TouchableOpacity>
                   <View className="absolute bottom-2 left-0 right-0 flex-row justify-center">
-                    {property.images.map((_: string, index: number) => (
+                    {property?.images.map((_: string, index: number) => (
                       <View
                         key={index}
                         className={`w-2 h-2 rounded-full mx-1 ${
@@ -147,9 +163,7 @@ const TenantPropertyDetailsScreen: React.FC = () => {
             </>
           ) : (
             <View className="w-full h-full justify-center items-center">
-              <Text className="text-gray-500">
-                No Property Images Available
-              </Text>
+              <Text className="text-gray-500">No Images Available</Text>
             </View>
           )}
         </Animated.View>
@@ -170,7 +184,7 @@ const TenantPropertyDetailsScreen: React.FC = () => {
             </View>
             <View className="items-end">
               <Text className="text-green-600 text-3xl font-bold">
-                ₦{property.price.toLocaleString()}
+                ₦{property.price}
               </Text>
               <Text className="text-gray-500 text-base">
                 per {property.billingCycle}
@@ -244,13 +258,13 @@ const TenantPropertyDetailsScreen: React.FC = () => {
               <DetailItem
                 icon="🛡️"
                 label="Caution Fee"
-                value={`₦${property.fees.caution.toLocaleString()}`}
+                value={`₦${property.fees?.caution.toLocaleString()}`}
               />
-              {property.fees.agency !== undefined && (
+              {property.fees?.agency !== undefined && (
                 <DetailItem
                   icon="🏢"
                   label="Agency Fee"
-                  value={`₦${property.fees.agency.toLocaleString()}`}
+                  value={`₦${property.fees?.agency.toLocaleString()}`}
                 />
               )}
             </View>
@@ -287,19 +301,55 @@ const TenantPropertyDetailsScreen: React.FC = () => {
               Location
             </Text>
             <Text className="text-gray-700 text-base mb-1">
-              📍 {property.location.address}
+              📍 {property?.location?.address}
             </Text>
             <Text className="text-gray-700 text-base mb-1">
-              🏙️ {property.location.city}, {property.location.state}
+              🏙️ {property.location?.city}, {property.location?.state}
             </Text>
             <Text className="text-gray-700 text-base">
-              🌍 {property.location.country}
+              {property?.location?.country}
             </Text>
+            {/*  TODO: embed the mao that is need for to make the project more bulky and pleasing to the eye*/}
             {/* You could embed a map component here using the coordinates */}
           </Animated.View>
 
-          {/* Landlord Info */}
           <Animated.View
+            entering={FadeInUp.delay(300).duration(500)}
+            className="bg-white p-5 rounded-2xl shadow-lg mb-6 flex-row space-x-3 justify-between gap-2"
+          >
+            <TouchableOpacity
+              onPress={() =>
+                router.push({
+                  pathname: "/LandlordComponents/UploadImages",
+                  params: { id },
+                })
+              }
+              className="flex-1 bg-blue-700 py-3 rounded-xl flex-row items-center justify-center shadow-md"
+            >
+              <Text className="text-white text-base font-semibold mr-2">
+                Upload Images
+              </Text>
+              <Text className="text-white text-xl">📤</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() =>
+                router.push({
+                  pathname: "/LandlordComponents/EditProperty",
+                  params: { id },
+                })
+              }
+              className="flex-1 bg-gray-100 py-3 rounded-xl flex-row items-center justify-center shadow-sm border border-gray-300"
+            >
+              <Text className="text-blue-800 text-base font-semibold mr-2">
+                Edit Property
+              </Text>
+              <Text className="text-blue-800 text-xl">✏️</Text>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/*  Landlord Info  this is not needed for the landlord he will be the one recieving mails from other users*/}
+          {/* <Animated.View
             entering={FadeInUp.delay(1000).duration(600)}
             className="bg-blue-100 p-4 rounded-xl shadow-md mb-6"
           >
@@ -307,63 +357,25 @@ const TenantPropertyDetailsScreen: React.FC = () => {
               Contact Landlord
             </Text>
             <Text className="text-gray-700 text-base">
-              Name: {property.landlord.firstName} {property.landlord.lastName}
+              Name: {property?.landlord?.firstName}{" "}
+              {property?.landlord?.lastName}
             </Text>
-            <Text className="text-gray-700 text-base">
-              Email: {property.landlord.email}
+            <Text className="text-gray-700 text-base mb-4">
+              Email: {property?.landlord?.email}
             </Text>
-            <TouchableOpacity
-              onPress={() => console.log("Initiate contact with landlord")}
-              className="bg-blue-600 py-3 rounded-lg flex-row items-center justify-center mt-4 shadow-md"
-            >
-              <Text className="text-white text-lg font-semibold mr-2">
-                Message Landlord
-              </Text>
-              <Text className="text-white text-xl">✉️</Text>
-            </TouchableOpacity>
-          </Animated.View>
 
-          {/* Book Now Button */}
-          {property.isAvailable && (
-            <Animated.View
-              entering={FadeInUp.delay(1100).duration(600)}
-              className="mb-10"
-            >
-              <TouchableOpacity
-                onPress={() =>
-                  router.push({
-                    pathname: "/CreateBooking",
-                    params: { id: property._id },
-                  })
-                }
-                className="bg-green-500 py-4 rounded-xl flex-row items-center justify-center shadow-md"
-              >
-                <Text className="text-white text-lg font-bold mr-2">
-                  Book Now
-                </Text>
-                <Text className="text-white text-xl">➡️</Text>
-              </TouchableOpacity>
-            </Animated.View>
-          )}
-          {!property.isAvailable && (
-            <Animated.View
-              entering={FadeInUp.delay(1100).duration(600)}
-              className="mb-10"
-            >
-              <View className="bg-red-100 border border-red-400 p-4 rounded-xl items-center justify-center">
-                <Text className="text-red-700 text-lg font-bold">
-                  Property Currently Not Available
-                </Text>
-                <Text className="text-red-600 text-sm mt-1">
-                  Please check back later or explore other listings.
-                </Text>
-              </View>
-            </Animated.View>
-          )}
+            <ActionLinkButton
+              label="Message Landlord"
+              type="email"
+              destination="support@yourdomain.com"
+              icon={<Text className="text-green-600 text-2xl">✉️</Text>}
+              description="Send a Message to the landlord"
+            />
+          </Animated.View> */}
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-export default TenantPropertyDetailsScreen;
+export default PropertyDetailsScreen;

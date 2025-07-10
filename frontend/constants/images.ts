@@ -3,8 +3,8 @@ import avatar from "@/assets/images/avatar.png";
 import barChart from "@/assets/images/bar-chart.png";
 import cardGradient from "@/assets/images/card-gradient.png";
 import ForgotPassword from "@/assets/images/ForgotPassword.png";
+import House from "@/assets/images/house.jpg";
 import japan from "@/assets/images/japan.png";
-import LandingPage from "@/assets/images/LandingPage.webp";
 import list from "@/assets/images/list.png";
 import Login from "@/assets/images/Login.png";
 import map from "@/assets/images/map.png";
@@ -16,6 +16,7 @@ import whiteGradient from "@/assets/images/white-gradient.png";
 
 export default {
   onboarding,
+  House,
   add,
   settings,
   list,
@@ -28,6 +29,5 @@ export default {
   map,
   noResult,
   Login,
-  LandingPage,
   ForgotPassword,
 };

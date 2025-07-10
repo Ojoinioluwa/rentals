@@ -148,12 +148,13 @@ const LandlordBookingsScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    setTotalBookings(bookings?.length);
+    setTotalBookings(bookings?.totalBookings);
+    setTotalPages(bookings?.totalPages);
   }, [bookings]);
 
   const handleBookingDetailsPress = (bookingId: string) => {
     router.push({
-      pathname: "/BookingDetailsLandlord",
+      pathname: "/LandlordComponents/BookingDetailsLandlord",
       params: { id: bookingId },
     });
   };

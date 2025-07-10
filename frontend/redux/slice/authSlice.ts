@@ -1,13 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 import getUserFromStorage from '../../utils/getUserFromStorage';
 
-const initialState = {
+interface AuthState {
+  user: any;
+  token: string | null;
+  role: 'landlord' | 'tenant' | null;
+}
+
+const initialState: AuthState = {
   user: null,
   token: null,
   role: null,
 };
 
-// Make the slice setup async if needed
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -21,21 +26,23 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       state.role = null;
-
+    },
+    setRole: (state, action) => {
+      state.role = action.payload.role;
     },
   },
 });
 
-// Async function to initialize the state
+// Optional helper to load user
 export const loadUserFromStorage = async () => {
   const storedUser = await getUserFromStorage();
   return {
-    user: storedUser ? storedUser.user : null,
-    token: storedUser ? storedUser.token : null,
-    role: storedUser ? storedUser.role : null,
+    user: storedUser?.user || null,
+    token: storedUser?.token || null,
+    role: storedUser?.role || null,
   };
 };
 
-export const { loginAction, logOutAction } = authSlice.actions;
+export const { loginAction, logOutAction, setRole } = authSlice.actions;
 const authReducer = authSlice.reducer;
 export default authReducer;

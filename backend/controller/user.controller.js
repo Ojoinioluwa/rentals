@@ -14,9 +14,9 @@ const validatePassword = require("../utils/passwordValidator");
 const userController = {
     // register the user 
     register: asyncHandler(async (req, res) => {
-        const { firstName, lastName, email, phoneNumber, password, userType } = req.body
+        const { firstName, lastName, email, phoneNumber, password, role } = req.body
 
-        if (!firstName || !lastName || !email || !phoneNumber || !password || !userType) {
+        if (!firstName || !lastName || !email || !phoneNumber || !password || !role) {
             res.status(400)
             throw new Error('All fields are requried');
         }
@@ -53,7 +53,7 @@ const userController = {
             email,
             password: hashedPassword,
             phoneNumber,
-            userType
+            userType: role
         })
 
         await sendMail({
@@ -73,7 +73,7 @@ const userController = {
     // verify the user
     verifyUser: asyncHandler(async (req, res) => {
 
-        const { otp, email } = req.body
+        const { verificationCode, email } = req.body
         const userInfo = await User.findOne({ email });
         const user = await UserVerification.findOne({ userId: userInfo._id })
         if (!user) {
@@ -94,7 +94,7 @@ const userController = {
             })
         }
 
-        const isMatch = await bcrypt.compare(otp, user.verificationCode);
+        const isMatch = await bcrypt.compare(verificationCode, user.verificationCode);
         if (!isMatch) {
             res.status(400)
             throw new Error("Wrong verification code or verification code has expired, check your email again for new code or input correct code")
@@ -165,14 +165,14 @@ const userController = {
                 email: user.email,
                 firstName: user.firstName,
                 lastName: user.lastName,
-                userType: user.userType
+                role: user.userType,
             }
         })
     }),
 
     // get user profile
     getUserProfile: asyncHandler(async (req, res) => {
-        const user = await User.findById(req.user).select("-password").lean();
+        const user = await User.findById(req.user._id).select("-password").lean();
         if (!user) {
             res.status(401)
             throw new Error("User does not exist please try again")
@@ -183,7 +183,8 @@ const userController = {
             message: "Fetched user profile successfully",
             user
         })
-    })
+    }),
+
 
 }
 

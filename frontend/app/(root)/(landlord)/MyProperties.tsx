@@ -3,7 +3,8 @@ import { getMyProperties } from "@/services/landlord/landlordServices";
 import { Property } from "@/types/property.types";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -96,6 +97,10 @@ const MyPropertiesScreen: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    setTotalPages(data?.totalPages);
+  }, [data]);
+
   const handlePrevPage = () => {
     if (page > 1) {
       setPage(page - 1);
@@ -104,7 +109,7 @@ const MyPropertiesScreen: React.FC = () => {
 
   const handlePropertyPress = (propertyId: string) => {
     router.push({
-      pathname: "/PropertyDetails",
+      pathname: "/LandlordComponents/PropertyDetails",
       params: {
         id: propertyId,
       },

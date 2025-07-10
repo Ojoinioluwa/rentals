@@ -1,7 +1,7 @@
 import icons from "@/constants/icons";
 import { RegisterAPI } from "@/services/User/userServices";
 import { useMutation } from "@tanstack/react-query";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useFormik } from "formik";
 import React, { useState } from "react";
 import {
@@ -15,14 +15,19 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+import { useSelector } from "react-redux";
 import * as Yup from "yup";
+import { UserRole } from "./RoleSelection";
 
 const validationSchema = Yup.object({
   email: Yup.string().required("Email is required").email("Email is invalid"),
   password: Yup.string()
     .required("Password is required")
     .min(6, "Password must be at least 6 characters"),
-  name: Yup.string()
+  firstName: Yup.string()
+    .required("name is required")
+    .min(3, "name must be at least 3 characters"),
+  lastName: Yup.string()
     .required("name is required")
     .min(3, "name must be at least 3 characters"),
   phoneNumber: Yup.string()
@@ -32,9 +37,18 @@ const validationSchema = Yup.object({
     .required("Confirm password is required")
     .oneOf([Yup.ref("password")], "Passwords must match"),
   address: Yup.string().required("Address is required"),
-});
+}); // Adjust this import path
+
+type Role = {
+  auth: {
+    role: UserRole;
+  };
+};
 
 const Register = () => {
+  const role = useSelector((state: Role) => state.auth.role);
+  const router = useRouter();
+
   const { mutateAsync, isPending } = useMutation({
     mutationKey: ["register"],
     mutationFn: RegisterAPI,
@@ -44,28 +58,33 @@ const Register = () => {
     formik.handleSubmit();
   };
 
-  const [passvisible, setPassVisible] = useState(false);
+  const [passVisible, setPassVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const formik = useFormik({
     initialValues: {
       email: "",
       password: "",
-      name: "",
+      firstName: "",
+      lastName: "",
       phoneNumber: "",
       address: "",
       confirmPassword: "",
     },
     validationSchema,
     onSubmit: (values) => {
-      mutateAsync(values)
+      const newValues = {
+        ...values,
+        role: role,
+      };
+      mutateAsync(newValues)
         .then((response) => {
-          console.log("Register response", response);
           Toast.show({
             type: "success",
             text1: response.message,
             text2: "Welcome to the app 👋",
           });
+          router.replace("/VerifyEmail");
         })
         .catch((error) => {
           console.log("Register error", error);
@@ -89,22 +108,40 @@ const Register = () => {
             Create an Account to start saving
           </Text>
           <View className="mt-12">
-            {/* name */}
+            {/* first Name */}
             <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
               <Image source={icons.person} className="size-5 ml-5 " />
               <TextInput
-                value={formik.values.name}
+                value={formik.values.firstName}
                 editable={!isPending}
                 placeholderTextColor="gray"
-                placeholder="👤 name"
+                placeholder="👤 First Name"
                 className="font-rubix-medium flex-1"
-                onChangeText={formik.handleChange("name")}
-                onBlur={formik.handleBlur("name")}
+                onChangeText={formik.handleChange("firstName")}
+                onBlur={formik.handleBlur("firstName")}
               />
             </View>
-            {formik.touched.name && formik.errors.name && (
+            {formik.touched.firstName && formik.errors.firstName && (
               <Text className="text-red-500 text-sm mt-1 mb-4">
-                {formik.errors.name}
+                {formik.errors.firstName}
+              </Text>
+            )}
+            {/* last name */}
+            <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
+              <Image source={icons.person} className="size-5 ml-5 " />
+              <TextInput
+                value={formik.values.lastName}
+                editable={!isPending}
+                placeholderTextColor="gray"
+                placeholder="👤 Last Name"
+                className="font-rubix-medium flex-1"
+                onChangeText={formik.handleChange("lastName")}
+                onBlur={formik.handleBlur("lastName")}
+              />
+            </View>
+            {formik.touched.lastName && formik.errors.lastName && (
+              <Text className="text-red-500 text-sm mt-1 mb-4">
+                {formik.errors.lastName}
               </Text>
             )}
 
@@ -169,7 +206,7 @@ const Register = () => {
               <TextInput
                 value={formik.values.password}
                 editable={!isPending}
-                secureTextEntry={!passvisible}
+                secureTextEntry={!passVisible}
                 placeholderTextColor="gray"
                 placeholder="🔑 Password"
                 className="font-rubix-medium flex-1"
@@ -177,11 +214,11 @@ const Register = () => {
                 onBlur={formik.handleBlur("password")}
               />
               <TouchableOpacity
-                onPress={() => setPassVisible(!passvisible)}
+                onPress={() => setPassVisible(!passVisible)}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <Image
-                  source={passvisible ? icons.eye : icons.eyeOff}
+                  source={passVisible ? icons.eye : icons.eyeOff}
                   className="size-6 mr-5"
                 />
               </TouchableOpacity>

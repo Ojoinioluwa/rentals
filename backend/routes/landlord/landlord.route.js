@@ -14,7 +14,7 @@ propertyRouter.use(isAuthenticated);
 // ===============================
 
 // Create new property
-propertyRouter.post("/create", authorize("landlord"), landlordController.createProperty);
+propertyRouter.post("/create", authorize("landlord"), upload.array("images", 3), landlordController.createProperty);
 
 // Get all landlord properties
 propertyRouter.get("/my", authorize("landlord"), landlordController.getMyProperties);

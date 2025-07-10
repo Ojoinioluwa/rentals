@@ -1,4 +1,4 @@
-const allFieldsRequired = (...fields) => {
+const allFieldsRequired = (fields) => {
     return fields.some(
         field =>
             field === undefined ||

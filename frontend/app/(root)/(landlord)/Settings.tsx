@@ -3,7 +3,11 @@ import {
   SettingsHeader,
   SettingsProfile,
 } from "@/components/SettingsItem";
-import React, { useState } from "react";
+import { logOutAction } from "@/redux/slice/authSlice";
+import getUserFromStorage from "@/utils/getUserFromStorage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
   LayoutChangeEvent,
   ScrollView,
@@ -19,12 +23,27 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch } from "react-redux";
 
 // Main Settings Screen Component
 const Settings = () => {
   const [notificationsEnabled, setNotificationsEnabled] =
     useState<boolean>(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState<boolean>(false);
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  const [email, setEmail] = useState();
+  const [name, setName] = useState();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userData = await getUserFromStorage();
+      setEmail(userData?.user.email);
+      setName(userData?.user.name);
+    };
+    fetchUser();
+  }, []);
 
   // State for collapsible sections
   const [accountExpanded, setAccountExpanded] = useState<boolean>(true);
@@ -66,13 +85,19 @@ const Settings = () => {
     }
   };
 
+  const logoutOutHandler = async () => {
+    dispatch(logOutAction());
+    await AsyncStorage.removeItem("user");
+    router.replace("/LandingPage");
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-blue-50">
       <ScrollView className="flex-1">
         {/* Header */}
         <SettingsHeader />
         {/* Profile Section */}
-        <SettingsProfile />
+        <SettingsProfile name={name!} email={email!} />
         {/* Account Settings Section */}
         <View className="mt-6 mx-4 rounded-xl overflow-hidden shadow-md">
           <TouchableOpacity
@@ -101,12 +126,12 @@ const Settings = () => {
               <SettingItem
                 icon={<Text className="text-blue-600 text-lg">📝</Text>}
                 title="Edit Profile"
-                onPress={() => console.log("Edit Profile")}
+                onPress={() => router.push("/EditProfile")}
               />
               <SettingItem
                 icon={<Text className="text-blue-600 text-lg">🔑</Text>}
                 title="Change Password"
-                onPress={() => console.log("Change Password")}
+                onPress={() => router.push("/ChangePassword")}
               />
               <SettingItem
                 icon={<Text className="text-blue-600 text-lg">🔔</Text>}
@@ -185,7 +210,7 @@ const Settings = () => {
           <SettingItem
             icon={<Text className="text-blue-600 text-lg">❓</Text>}
             title="Help & Support"
-            onPress={() => console.log("Help & Support")}
+            onPress={() => router.push("/HelpSupport")}
           />
           <SettingItem
             icon={<Text className="text-blue-600 text-lg">⭐</Text>}
@@ -196,7 +221,7 @@ const Settings = () => {
         </View>
         {/* Logout Button */}
         <TouchableOpacity
-          onPress={() => console.log("Logging out...")}
+          onPress={logoutOutHandler}
           className="bg-red-500 mx-4 my-6 p-4 rounded-xl shadow-md flex-row items-center justify-center"
         >
           <Text className="text-white text-lg font-bold mr-2">Logout</Text>

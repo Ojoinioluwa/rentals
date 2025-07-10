@@ -43,6 +43,9 @@ const AllPropertiesScreen: React.FC = () => {
   const [furnishedFilter, setFurnishedFilter] = useState<boolean | undefined>(
     undefined
   );
+  // const [city, setCity] = useState<string>("");
+  // const [state, setState] = useState<string>("");
+  // const [country, setCountry] = useState<string>("");
 
   const router = useRouter();
 
@@ -112,9 +115,21 @@ const AllPropertiesScreen: React.FC = () => {
     }
   };
 
+  // Function to handle the search action
+  // const handleSearch = () => {
+  //   // Here you would typically trigger your API call or navigation
+  //   Alert.alert(
+  //     "Search Initiated",
+  //     `Searching for properties in:\nCity: ${city || "Any"}\nState: ${
+  //       state || "Any"
+  //     }\nCountry: ${country || "Any"}`
+  //   );
+  //   // Example: router.push(`/properties?city=${city}&state=${state}&country=${country}`);
+  // };
+
   const handlePropertyPress = (propertyId: string) => {
     router.push({
-      pathname: "/PropertyDetailsTenant",
+      pathname: "/TenantComponents/PropertyDetailsTenant",
       params: { id: propertyId },
     });
   };
@@ -134,6 +149,19 @@ const AllPropertiesScreen: React.FC = () => {
             Find your next perfect home or office space.
           </Text>
         </Animated.View>
+
+        {/* <LocationSearchBar
+          city={city}
+          setCity={setCity}
+          state={state}
+          setState={setState}
+          country={country}
+          setCountry={setCountry}
+          onSearch={handleSearch}
+          placeholderCity="e.g. Lagos" // You can override placeholders
+          placeholderState="e.g. Lagos"
+          placeholderCountry="e.g. Nigeria"
+        /> */}
 
         {/* Filter Section Toggle */}
         <Animated.View entering={FadeInUp.delay(200).duration(500)}>

@@ -100,7 +100,9 @@ const bookController = {
         res.status(200).json({
             success: true,
             message: "Bookings Fetched Successfully",
-            bookings
+            bookings,
+            totalPages: Math.ceil(total / limit),
+            totalBookings: total,
         })
     }),
 
@@ -228,7 +230,9 @@ const bookController = {
         res.status(200).json({
             success: true,
             message: "Bookings Fetched Successfully",
-            bookings
+            bookings,
+            totalPages: Math.ceil(total / limit),
+            totalBookings: total,
         })
     }),
 

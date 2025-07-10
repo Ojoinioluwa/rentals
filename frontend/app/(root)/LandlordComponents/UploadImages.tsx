@@ -86,7 +86,7 @@ const UploadImagesScreen = () => {
           uri,
           name: filename,
           type,
-        } as any); // RN FormData typing workaround
+        } as any);
       });
 
       const response = await mutateAsync({ id: propertyId, images: formData });
