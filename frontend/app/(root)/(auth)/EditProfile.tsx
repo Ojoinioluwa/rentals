@@ -112,7 +112,7 @@ const EditProfile: React.FC = () => {
       >
         <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 30 }}>
           <View className="flex-1 p-5 items-center justify-center">
-            {" "}
+            <View className="h-4" />
             {/* Centering content for "coming soon" */}
             <View className="bg-white rounded-xl p-8 shadow-lg items-center max-w-sm w-full">
               <Text className="text-3xl font-bold text-blue-700 mb-4 text-center">

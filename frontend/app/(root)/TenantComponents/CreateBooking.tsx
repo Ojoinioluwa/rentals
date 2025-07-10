@@ -14,7 +14,7 @@ import {
   View,
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import Animated, {
+import {
   Easing,
   FadeInUp,
   useAnimatedStyle,
@@ -23,6 +23,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message"; // For displaying messages
+import { AnimatedView } from "../LandlordComponents/UploadImages";
 
 const CreateBookingScreen: React.FC = () => {
   const [isStartDatePickerVisible, setStartDatePickerVisibility] =
@@ -122,7 +123,7 @@ const CreateBookingScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-blue-50">
       <ScrollView className="flex-1 p-5">
         {/* Header */}
-        <Animated.View
+        <AnimatedView
           entering={FadeInUp.delay(100).duration(500)}
           className="flex-row items-center justify-between mb-6"
         >
@@ -135,9 +136,9 @@ const CreateBookingScreen: React.FC = () => {
           <Text className="text-blue-800 text-2xl font-bold flex-1 text-center pr-10">
             Book Property
           </Text>
-        </Animated.View>
+        </AnimatedView>
 
-        <Animated.View style={contentAnimatedStyle} className="flex-1">
+        <AnimatedView style={contentAnimatedStyle} className="flex-1">
           <Text className="text-center text-gray-600 text-base mb-8">
             Fill in the details to request a booking for this property.
           </Text>
@@ -225,7 +226,7 @@ const CreateBookingScreen: React.FC = () => {
               </Text>
             )}
           </TouchableOpacity>
-        </Animated.View>
+        </AnimatedView>
 
         {/* Date Pickers */}
         <DateTimePickerModal

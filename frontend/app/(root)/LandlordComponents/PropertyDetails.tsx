@@ -19,6 +19,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { AnimatedView } from "./UploadImages";
 
 const PropertyDetailsScreen: React.FC = () => {
   const router = useRouter();
@@ -110,17 +111,17 @@ const PropertyDetailsScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-blue-50 pb-10">
       <ScrollView className="flex-1">
         {/* Back Button */}
-        <Animated.View entering={FadeIn.delay(200).duration(500)}>
+        <AnimatedView entering={FadeIn.delay(200).duration(500)}>
           <TouchableOpacity
             onPress={() => router.back()}
             className="absolute top-4 left-4 z-10 bg-blue-600 p-3 rounded-full shadow-lg"
           >
             <Text className="text-white text-xl">⬅️</Text>
           </TouchableOpacity>
-        </Animated.View>
+        </AnimatedView>
 
         {/* Property Image Carousel */}
-        <Animated.View
+        <AnimatedView
           entering={FadeInUp.delay(300).duration(600)}
           className="w-full h-72 bg-gray-200 relative"
         >
@@ -166,11 +167,11 @@ const PropertyDetailsScreen: React.FC = () => {
               <Text className="text-gray-500">No Images Available</Text>
             </View>
           )}
-        </Animated.View>
+        </AnimatedView>
 
         <View className="p-5">
           {/* Title and Price */}
-          <Animated.View
+          <AnimatedView
             entering={FadeInUp.delay(400).duration(600)}
             className="flex-row justify-between items-start mb-4"
           >
@@ -190,10 +191,10 @@ const PropertyDetailsScreen: React.FC = () => {
                 per {property.billingCycle}
               </Text>
             </View>
-          </Animated.View>
+          </AnimatedView>
 
           {/* Description */}
-          <Animated.View
+          <AnimatedView
             entering={FadeInUp.delay(500).duration(600)}
             className="bg-white p-4 rounded-xl shadow-md mb-4"
           >
@@ -203,10 +204,10 @@ const PropertyDetailsScreen: React.FC = () => {
             <Text className="text-gray-700 text-base leading-relaxed">
               {property.description}
             </Text>
-          </Animated.View>
+          </AnimatedView>
 
           {/* Key Details */}
-          <Animated.View
+          <AnimatedView
             entering={FadeInUp.delay(600).duration(600)}
             className="bg-white p-4 rounded-xl shadow-md mb-4"
           >
@@ -246,10 +247,10 @@ const PropertyDetailsScreen: React.FC = () => {
                 color={property.isAvailable ? "text-green-500" : "text-red-500"}
               />
             </View>
-          </Animated.View>
+          </AnimatedView>
 
           {/* Fees */}
-          <Animated.View
+          <AnimatedView
             entering={FadeInUp.delay(700).duration(600)}
             className="bg-white p-4 rounded-xl shadow-md mb-4"
           >
@@ -268,11 +269,11 @@ const PropertyDetailsScreen: React.FC = () => {
                 />
               )}
             </View>
-          </Animated.View>
+          </AnimatedView>
 
           {/* Features */}
           {property.features && property.features.length > 0 && (
-            <Animated.View
+            <AnimatedView
               entering={FadeInUp.delay(800).duration(600)}
               className="bg-white p-4 rounded-xl shadow-md mb-4"
             >
@@ -289,11 +290,11 @@ const PropertyDetailsScreen: React.FC = () => {
                   </View>
                 ))}
               </View>
-            </Animated.View>
+            </AnimatedView>
           )}
 
           {/* Location */}
-          <Animated.View
+          <AnimatedView
             entering={FadeInUp.delay(900).duration(600)}
             className="bg-white p-4 rounded-xl shadow-md mb-4"
           >
@@ -311,9 +312,9 @@ const PropertyDetailsScreen: React.FC = () => {
             </Text>
             {/*  TODO: embed the mao that is need for to make the project more bulky and pleasing to the eye*/}
             {/* You could embed a map component here using the coordinates */}
-          </Animated.View>
+          </AnimatedView>
 
-          <Animated.View
+          <AnimatedView
             entering={FadeInUp.delay(300).duration(500)}
             className="bg-white p-5 rounded-2xl shadow-lg mb-6 flex-row space-x-3 justify-between gap-2"
           >
@@ -346,10 +347,10 @@ const PropertyDetailsScreen: React.FC = () => {
               </Text>
               <Text className="text-blue-800 text-xl">✏️</Text>
             </TouchableOpacity>
-          </Animated.View>
+          </AnimatedView>
 
           {/*  Landlord Info  this is not needed for the landlord he will be the one recieving mails from other users*/}
-          {/* <Animated.View
+          {/* <AnimatedView
             entering={FadeInUp.delay(1000).duration(600)}
             className="bg-blue-100 p-4 rounded-xl shadow-md mb-6"
           >
@@ -371,7 +372,7 @@ const PropertyDetailsScreen: React.FC = () => {
               icon={<Text className="text-green-600 text-2xl">✉️</Text>}
               description="Send a Message to the landlord"
             />
-          </Animated.View> */}
+          </AnimatedView> */}
         </View>
       </ScrollView>
     </SafeAreaView>

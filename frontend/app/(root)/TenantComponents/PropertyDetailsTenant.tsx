@@ -20,6 +20,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { AnimatedView } from "../LandlordComponents/UploadImages";
 
 const TenantPropertyDetailsScreen: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -109,17 +110,17 @@ const TenantPropertyDetailsScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-blue-50">
       <ScrollView className="flex-1">
         {/* Back Button */}
-        <Animated.View entering={FadeIn.delay(200).duration(500)}>
+        <AnimatedView entering={FadeIn.delay(200).duration(500)}>
           <TouchableOpacity
             onPress={() => router.back()}
             className="absolute top-4 left-4 z-10 bg-blue-600 p-3 rounded-full shadow-lg"
           >
             <Text className="text-white text-xl">⬅️</Text>
           </TouchableOpacity>
-        </Animated.View>
+        </AnimatedView>
 
         {/* Property Image Carousel */}
-        <Animated.View
+        <AnimatedView
           entering={FadeInUp.delay(300).duration(600)}
           className="w-full h-72 bg-gray-200 relative"
         >
@@ -167,11 +168,11 @@ const TenantPropertyDetailsScreen: React.FC = () => {
               </Text>
             </View>
           )}
-        </Animated.View>
+        </AnimatedView>
 
         <View className="p-5">
           {/* Title and Price */}
-          <Animated.View
+          <AnimatedView
             entering={FadeInUp.delay(400).duration(600)}
             className="flex-row justify-between items-start mb-4"
           >
@@ -191,10 +192,10 @@ const TenantPropertyDetailsScreen: React.FC = () => {
                 per {property.billingCycle}
               </Text>
             </View>
-          </Animated.View>
+          </AnimatedView>
 
           {/* Description */}
-          <Animated.View
+          <AnimatedView
             entering={FadeInUp.delay(500).duration(600)}
             className="bg-white p-4 rounded-xl shadow-md mb-4"
           >
@@ -204,10 +205,10 @@ const TenantPropertyDetailsScreen: React.FC = () => {
             <Text className="text-gray-700 text-base leading-relaxed">
               {property.description}
             </Text>
-          </Animated.View>
+          </AnimatedView>
 
           {/* Key Details */}
-          <Animated.View
+          <AnimatedView
             entering={FadeInUp.delay(600).duration(600)}
             className="bg-white p-4 rounded-xl shadow-md mb-4"
           >
@@ -247,10 +248,10 @@ const TenantPropertyDetailsScreen: React.FC = () => {
                 color={property.isAvailable ? "text-green-500" : "text-red-500"}
               />
             </View>
-          </Animated.View>
+          </AnimatedView>
 
           {/* Fees */}
-          <Animated.View
+          <AnimatedView
             entering={FadeInUp.delay(700).duration(600)}
             className="bg-white p-4 rounded-xl shadow-md mb-4"
           >
@@ -269,11 +270,11 @@ const TenantPropertyDetailsScreen: React.FC = () => {
                 />
               )}
             </View>
-          </Animated.View>
+          </AnimatedView>
 
           {/* Features */}
           {property.features && property.features.length > 0 && (
-            <Animated.View
+            <AnimatedView
               entering={FadeInUp.delay(800).duration(600)}
               className="bg-white p-4 rounded-xl shadow-md mb-4"
             >
@@ -290,11 +291,11 @@ const TenantPropertyDetailsScreen: React.FC = () => {
                   </View>
                 ))}
               </View>
-            </Animated.View>
+            </AnimatedView>
           )}
 
           {/* Location */}
-          <Animated.View
+          <AnimatedView
             entering={FadeInUp.delay(900).duration(600)}
             className="bg-white p-4 rounded-xl shadow-md mb-4"
           >
@@ -311,10 +312,10 @@ const TenantPropertyDetailsScreen: React.FC = () => {
               🌍 {property.location.country}
             </Text>
             {/* You could embed a map component here using the coordinates */}
-          </Animated.View>
+          </AnimatedView>
 
           {/* Landlord Info */}
-          <Animated.View
+          <AnimatedView
             entering={FadeInUp.delay(1000).duration(600)}
             className="bg-blue-100 p-4 rounded-xl shadow-md mb-6"
           >
@@ -334,11 +335,11 @@ const TenantPropertyDetailsScreen: React.FC = () => {
               icon={<Text className="text-green-600 text-2xl">✉️</Text>}
               description="Send us a detailed message"
             />
-          </Animated.View>
+          </AnimatedView>
 
           {/* Book Now Button */}
           {property.isAvailable && (
-            <Animated.View
+            <AnimatedView
               entering={FadeInUp.delay(1100).duration(600)}
               className="mb-10"
             >
@@ -356,10 +357,10 @@ const TenantPropertyDetailsScreen: React.FC = () => {
                 </Text>
                 <Text className="text-white text-xl">➡️</Text>
               </TouchableOpacity>
-            </Animated.View>
+            </AnimatedView>
           )}
           {!property.isAvailable && (
-            <Animated.View
+            <AnimatedView
               entering={FadeInUp.delay(1100).duration(600)}
               className="mb-10"
             >
@@ -371,7 +372,7 @@ const TenantPropertyDetailsScreen: React.FC = () => {
                   Please check back later or explore other listings.
                 </Text>
               </View>
-            </Animated.View>
+            </AnimatedView>
           )}
         </View>
       </ScrollView>

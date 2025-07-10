@@ -1,8 +1,9 @@
+import { AnimatedView } from "@/app/(root)/LandlordComponents/UploadImages";
 import { SettingItemProps } from "@/types/settings.types";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import Animated, {
+import {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -32,7 +33,7 @@ export const SettingItem: React.FC<SettingItemProps> = ({
   };
 
   return (
-    <Animated.View style={animatedStyle} className="w-full">
+    <AnimatedView style={animatedStyle} className="w-full">
       <TouchableOpacity
         onPress={onPress}
         onPressIn={handlePressIn}
@@ -53,7 +54,7 @@ export const SettingItem: React.FC<SettingItemProps> = ({
           <Text className="text-gray-400 text-xl">›</Text> // Chevron icon
         )}
       </TouchableOpacity>
-    </Animated.View>
+    </AnimatedView>
   );
 };
 

@@ -3,9 +3,10 @@ import { setRole } from "@/redux/slice/authSlice";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Text, View } from "react-native";
-import Animated, { FadeInUp } from "react-native-reanimated";
+import { FadeInUp } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch } from "react-redux";
+import { AnimatedView } from "../LandlordComponents/UploadImages";
 
 // Define a type for the possible roles
 export type UserRole = "renter" | "landlord";
@@ -20,7 +21,7 @@ const RoleSelection: React.FC = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-blue-50 justify-center items-center p-5">
-      <Animated.View
+      <AnimatedView
         entering={FadeInUp.delay(100).duration(500)}
         className="mb-10"
       >
@@ -30,7 +31,7 @@ const RoleSelection: React.FC = () => {
         <Text className="text-center text-gray-600 text-base max-w-sm">
           Please select your role to get started with the app.
         </Text>
-      </Animated.View>
+      </AnimatedView>
 
       <View className="w-full max-w-md">
         <RoleCard

@@ -14,7 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, {
+import {
   Easing,
   FadeInUp,
   FadeOutDown,
@@ -25,6 +25,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+import { AnimatedView } from "../LandlordComponents/UploadImages";
 
 interface Booking {
   _id: string;
@@ -139,7 +140,7 @@ const MyBookingsScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-blue-50 pb-12">
       <ScrollView className="flex-1 p-5">
         {/* Header */}
-        <Animated.View
+        <AnimatedView
           entering={FadeInUp.delay(100).duration(500)}
           className="mb-4"
         >
@@ -149,10 +150,10 @@ const MyBookingsScreen: React.FC = () => {
           <Text className="text-center text-gray-600 text-base">
             View and manage your property booking requests.
           </Text>
-        </Animated.View>
+        </AnimatedView>
 
         {/* Filter Section Toggle */}
-        <Animated.View entering={FadeInUp.delay(200).duration(500)}>
+        <AnimatedView entering={FadeInUp.delay(200).duration(500)}>
           <TouchableOpacity
             onPress={toggleFilterVisibility}
             className="bg-blue-500 py-3 rounded-xl flex-row items-center justify-center mb-4 shadow-md"
@@ -164,10 +165,10 @@ const MyBookingsScreen: React.FC = () => {
               {showFilters ? "▲" : "▼"}
             </Text>
           </TouchableOpacity>
-        </Animated.View>
+        </AnimatedView>
 
         {/* Filter Section */}
-        <Animated.View
+        <AnimatedView
           style={filterAnimatedStyle}
           className="overflow-hidden bg-white p-5 rounded-xl shadow-md mb-6"
         >
@@ -239,7 +240,7 @@ const MyBookingsScreen: React.FC = () => {
               </Text>
             </TouchableOpacity>
           </View>
-        </Animated.View>
+        </AnimatedView>
 
         {/* Loading and Error States */}
         {isLoading ? (
@@ -279,13 +280,13 @@ const MyBookingsScreen: React.FC = () => {
         ) : (
           <>
             {/* Booking List */}
-            <Animated.View entering={FadeInUp.delay(300).duration(500)}>
+            <AnimatedView entering={FadeInUp.delay(300).duration(500)}>
               <Text className="text-blue-700 text-xl font-bold mb-4">
                 Your Booking Requests ({totalBookings})
               </Text>
-            </Animated.View>
+            </AnimatedView>
             {bookings.map((booking: Booking, index: number) => (
-              <Animated.View
+              <AnimatedView
                 key={booking._id}
                 entering={FadeInUp.delay(index * 50 + 400).duration(500)} // Staggered entrance animation
                 exiting={FadeOutDown.duration(300)}
@@ -297,11 +298,11 @@ const MyBookingsScreen: React.FC = () => {
                   onCancel={onCancel}
                   isProcessing={isProcessingAction}
                 />
-              </Animated.View>
+              </AnimatedView>
             ))}
 
             {/* Pagination Controls */}
-            <Animated.View
+            <AnimatedView
               entering={FadeInUp.delay(bookings.length * 50 + 500).duration(
                 500
               )}
@@ -328,7 +329,7 @@ const MyBookingsScreen: React.FC = () => {
               >
                 <Text className="text-white font-semibold">Next</Text>
               </TouchableOpacity>
-            </Animated.View>
+            </AnimatedView>
           </>
         )}
       </ScrollView>

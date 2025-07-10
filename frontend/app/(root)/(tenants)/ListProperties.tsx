@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, {
+import {
   Easing,
   FadeInUp,
   FadeOutDown,
@@ -23,6 +23,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { AnimatedView } from "../LandlordComponents/UploadImages";
 
 // Main AllPropertiesScreen Component
 const AllPropertiesScreen: React.FC = () => {
@@ -138,7 +139,7 @@ const AllPropertiesScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-blue-50 pb-12">
       <ScrollView className="flex-1 p-5">
         {/* Header */}
-        <Animated.View
+        <AnimatedView
           entering={FadeInUp.delay(100).duration(500)}
           className="mb-4"
         >
@@ -148,7 +149,7 @@ const AllPropertiesScreen: React.FC = () => {
           <Text className="text-center text-gray-600 text-base">
             Find your next perfect home or office space.
           </Text>
-        </Animated.View>
+        </AnimatedView>
 
         {/* <LocationSearchBar
           city={city}
@@ -164,7 +165,7 @@ const AllPropertiesScreen: React.FC = () => {
         /> */}
 
         {/* Filter Section Toggle */}
-        <Animated.View entering={FadeInUp.delay(200).duration(500)}>
+        <AnimatedView entering={FadeInUp.delay(200).duration(500)}>
           <TouchableOpacity
             onPress={toggleFilterVisibility}
             className="bg-blue-500 py-3 rounded-xl flex-row items-center justify-center mb-4 shadow-md"
@@ -176,10 +177,10 @@ const AllPropertiesScreen: React.FC = () => {
               {showFilters ? "▲" : "▼"}
             </Text>
           </TouchableOpacity>
-        </Animated.View>
+        </AnimatedView>
 
         {/* Filter Section */}
-        <Animated.View
+        <AnimatedView
           style={filterAnimatedStyle}
           className="overflow-hidden bg-white p-5 rounded-xl shadow-md mb-4"
         >
@@ -318,7 +319,7 @@ const AllPropertiesScreen: React.FC = () => {
               </Text>
             </TouchableOpacity>
           </View>
-        </Animated.View>
+        </AnimatedView>
 
         {/* Loading and Error States */}
         {isLoading ? (
@@ -353,13 +354,13 @@ const AllPropertiesScreen: React.FC = () => {
         ) : (
           <>
             {/* Property List */}
-            <Animated.View entering={FadeInUp.delay(300).duration(500)}>
+            <AnimatedView entering={FadeInUp.delay(300).duration(500)}>
               <Text className="text-blue-700 text-xl font-bold mb-4">
                 Available Listings ({totalProperties})
               </Text>
-            </Animated.View>
+            </AnimatedView>
             {properties.map((property: Property, index: number) => (
-              <Animated.View
+              <AnimatedView
                 key={property._id}
                 entering={FadeInUp.delay(index * 50 + 400).duration(500)} // Staggered entrance animation
                 exiting={FadeOutDown.duration(300)}
@@ -369,11 +370,11 @@ const AllPropertiesScreen: React.FC = () => {
                   property={property}
                   onPress={handlePropertyPress}
                 />
-              </Animated.View>
+              </AnimatedView>
             ))}
 
             {/* Pagination Controls */}
-            <Animated.View
+            <AnimatedView
               entering={FadeInUp.delay(properties.length * 50 + 500).duration(
                 500
               )}
@@ -400,7 +401,7 @@ const AllPropertiesScreen: React.FC = () => {
               >
                 <Text className="text-white font-semibold">Next</Text>
               </TouchableOpacity>
-            </Animated.View>
+            </AnimatedView>
           </>
         )}
       </ScrollView>

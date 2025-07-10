@@ -20,6 +20,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { AnimatedView } from "../LandlordComponents/UploadImages";
 
 const BookingDetailsScreen: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
@@ -127,17 +128,17 @@ const BookingDetailsScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-blue-50">
       <ScrollView className="flex-1">
         {/* Back Button */}
-        <Animated.View entering={FadeIn.delay(200).duration(500)}>
+        <AnimatedView entering={FadeIn.delay(200).duration(500)}>
           <TouchableOpacity
             onPress={() => router.back()}
             className="absolute top-4 left-4 z-10 bg-blue-600 p-3 rounded-full shadow-lg"
           >
             <Text className="text-white text-xl">⬅️</Text>
           </TouchableOpacity>
-        </Animated.View>
+        </AnimatedView>
 
         {/* Property Image Carousel */}
-        <Animated.View
+        <AnimatedView
           entering={FadeInUp.delay(300).duration(600)}
           className="w-full h-72 bg-gray-200 relative"
         >
@@ -185,11 +186,11 @@ const BookingDetailsScreen: React.FC = () => {
               </Text>
             </View>
           )}
-        </Animated.View>
+        </AnimatedView>
 
         <View className="p-5">
           {/* Booking Summary */}
-          <Animated.View
+          <AnimatedView
             entering={FadeInUp.delay(400).duration(600)}
             className="bg-white p-4 rounded-xl shadow-md mb-4"
           >
@@ -223,11 +224,11 @@ const BookingDetailsScreen: React.FC = () => {
                 {booking.isPaid ? "Paid" : "Pending"}
               </Text>
             </View>
-          </Animated.View>
+          </AnimatedView>
 
           {/* Tenant's Message */}
           {booking.message && (
-            <Animated.View
+            <AnimatedView
               entering={FadeInUp.delay(500).duration(600)}
               className="bg-white p-4 rounded-xl shadow-md mb-4"
             >
@@ -237,11 +238,11 @@ const BookingDetailsScreen: React.FC = () => {
               <Text className="text-gray-700 text-base leading-relaxed italic">
                 &quot;{booking.message}&quot;
               </Text>
-            </Animated.View>
+            </AnimatedView>
           )}
 
           {/* Property Details Snapshot */}
-          <Animated.View
+          <AnimatedView
             entering={FadeInUp.delay(600).duration(600)}
             className="bg-white p-4 rounded-xl shadow-md mb-4"
           >
@@ -279,10 +280,10 @@ const BookingDetailsScreen: React.FC = () => {
             <Text className="text-gray-700 text-base ml-2">
               � {booking.property.location.country}
             </Text>
-          </Animated.View>
+          </AnimatedView>
 
           {/* Landlord Info */}
-          <Animated.View
+          <AnimatedView
             entering={FadeInUp.delay(700).duration(600)}
             className="bg-blue-100 p-4 rounded-xl shadow-md mb-6"
           >
@@ -302,10 +303,10 @@ const BookingDetailsScreen: React.FC = () => {
               icon={<Text className="text-green-600 text-2xl">✉️</Text>}
               description="Message landlord for more details"
             />
-          </Animated.View>
+          </AnimatedView>
 
           {/* Action Buttons (e.g., Cancel Booking, Make Payment) */}
-          <Animated.View
+          <AnimatedView
             entering={FadeInUp.delay(800).duration(600)}
             className="flex-row justify-around mb-10"
           >
@@ -329,7 +330,7 @@ const BookingDetailsScreen: React.FC = () => {
                 </Text>
               </TouchableOpacity>
             )}
-          </Animated.View>
+          </AnimatedView>
         </View>
       </ScrollView>
     </SafeAreaView>

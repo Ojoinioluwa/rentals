@@ -1,3 +1,4 @@
+import { AnimatedView } from "@/app/(root)/LandlordComponents/UploadImages";
 import {
   Booking,
   LandlordBookingCardProps,
@@ -5,7 +6,7 @@ import {
 } from "@/types/Booking.types";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import Animated, {
+import {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -52,7 +53,7 @@ export const LandlordBookingCard: React.FC<LandlordBookingCardProps> = ({
   };
 
   return (
-    <Animated.View style={animatedStyle} className="w-full mb-4">
+    <AnimatedView style={animatedStyle} className="w-full mb-4">
       <TouchableOpacity
         onPress={() => onPressDetails(booking._id)}
         onPressIn={handlePressIn}
@@ -153,7 +154,7 @@ export const LandlordBookingCard: React.FC<LandlordBookingCardProps> = ({
           )}
         </View>
       </TouchableOpacity>
-    </Animated.View>
+    </AnimatedView>
   );
 };
 
@@ -215,7 +216,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
   };
 
   return (
-    <Animated.View style={animatedStyle} className="w-full mb-4">
+    <AnimatedView style={animatedStyle} className="w-full mb-4">
       <TouchableOpacity
         onPress={() => onPress(booking._id)}
         onPressIn={handlePressIn}
@@ -293,6 +294,6 @@ export const BookingCard: React.FC<BookingCardProps> = ({
           )}
         </View>
       </TouchableOpacity>
-    </Animated.View>
+    </AnimatedView>
   );
 };

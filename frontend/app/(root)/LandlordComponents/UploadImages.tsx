@@ -19,6 +19,7 @@ import Animated, {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
+export const AnimatedView = Animated.createAnimatedComponent(View);
 const UploadImagesScreen = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const queryClient = new QueryClient();
@@ -147,7 +148,7 @@ const UploadImagesScreen = () => {
           ) : (
             <View className="flex-row flex-wrap justify-center">
               {selectedImages.map((imageUri, index) => (
-                <Animated.View
+                <AnimatedView
                   key={imageUri + index}
                   layout={Layout.springify()}
                   entering={FadeInUp.delay(index * 50).duration(400)}
@@ -169,7 +170,7 @@ const UploadImagesScreen = () => {
                   >
                     <Text className="text-white text-xs font-bold">✖️</Text>
                   </TouchableOpacity>
-                </Animated.View>
+                </AnimatedView>
               ))}
             </View>
           )}

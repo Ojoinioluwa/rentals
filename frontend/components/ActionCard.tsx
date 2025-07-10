@@ -1,6 +1,7 @@
+import { AnimatedView } from "@/app/(root)/LandlordComponents/UploadImages";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import Animated, {
+import {
   FadeInUp,
   useAnimatedStyle,
   useSharedValue,
@@ -39,7 +40,7 @@ export const ActionCard: React.FC<ActionCardProps> = ({
   };
 
   return (
-    <Animated.View
+    <AnimatedView
       entering={FadeInUp.delay(delay).duration(600)}
       style={animatedStyle}
       className="w-full mb-4"
@@ -59,6 +60,6 @@ export const ActionCard: React.FC<ActionCardProps> = ({
           <Text className="text-gray-600 text-sm">{description}</Text>
         </View>
       </TouchableOpacity>
-    </Animated.View>
+    </AnimatedView>
   );
 };

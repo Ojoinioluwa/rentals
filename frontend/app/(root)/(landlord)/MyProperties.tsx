@@ -14,7 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, {
+import {
   Easing,
   FadeInUp,
   FadeOutDown,
@@ -23,6 +23,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { AnimatedView } from "../LandlordComponents/UploadImages";
 
 // Main MyPropertiesScreen Component
 const MyPropertiesScreen: React.FC = () => {
@@ -139,7 +140,7 @@ const MyPropertiesScreen: React.FC = () => {
         </TouchableOpacity>
 
         {/* Filter Section */}
-        <Animated.View
+        <AnimatedView
           style={filterAnimatedStyle}
           className="overflow-hidden bg-white p-5 rounded-xl shadow-md mb-6"
         >
@@ -279,7 +280,7 @@ const MyPropertiesScreen: React.FC = () => {
               </Text>
             </TouchableOpacity>
           </View>
-        </Animated.View>
+        </AnimatedView>
 
         {/* Loading and Error States */}
         {isLoading ? (
@@ -321,7 +322,7 @@ const MyPropertiesScreen: React.FC = () => {
               Your Listings ({data?.totalProperties})
             </Text>
             {data.properties.map((property: Property, index: number) => (
-              <Animated.View
+              <AnimatedView
                 key={property._id}
                 entering={FadeInUp.delay(index * 50).duration(500)} // Staggered entrance animation
                 exiting={FadeOutDown.duration(300)}
@@ -330,7 +331,7 @@ const MyPropertiesScreen: React.FC = () => {
                   property={property}
                   onPress={() => handlePropertyPress(property._id)}
                 />
-              </Animated.View>
+              </AnimatedView>
             ))}
 
             {/* Pagination Controls */}

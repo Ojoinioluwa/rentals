@@ -16,7 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, {
+import {
   Easing,
   useAnimatedStyle,
   useSharedValue,
@@ -24,6 +24,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch } from "react-redux";
+import { AnimatedView } from "../LandlordComponents/UploadImages";
 
 // Main Settings Screen Component
 const Settings = () => {
@@ -111,7 +112,7 @@ const Settings = () => {
               {accountExpanded ? "▼" : "▲"}
             </Text>
           </TouchableOpacity>
-          <Animated.View
+          <AnimatedView
             style={accountAnimatedStyle}
             className="overflow-hidden"
           >
@@ -149,7 +150,7 @@ const Settings = () => {
                 />
               </SettingItem>
             </View>
-          </Animated.View>
+          </AnimatedView>
         </View>
         {/* App Preferences Section */}
         <View className="mt-4 mx-4 rounded-xl overflow-hidden shadow-md">
@@ -164,7 +165,7 @@ const Settings = () => {
               {appExpanded ? "▼" : "▲"}
             </Text>
           </TouchableOpacity>
-          <Animated.View style={appAnimatedStyle} className="overflow-hidden">
+          <AnimatedView style={appAnimatedStyle} className="overflow-hidden">
             <View
               onLayout={(event: LayoutChangeEvent) => {
                 // Set initial height for animation if needed, or calculate dynamically
@@ -203,7 +204,7 @@ const Settings = () => {
                 isLast={true}
               />
             </View>
-          </Animated.View>
+          </AnimatedView>
         </View>
         {/* Help & Support */}
         <View className="mt-4 mx-4 rounded-xl overflow-hidden shadow-md">

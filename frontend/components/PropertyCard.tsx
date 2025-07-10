@@ -1,3 +1,4 @@
+import { AnimatedView } from "@/app/(root)/LandlordComponents/UploadImages";
 import {
   FormInputProps,
   FormPickerProps,
@@ -13,7 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, {
+import {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -60,7 +61,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   };
 
   return (
-    <Animated.View style={animatedStyle} className="w-full mb-4">
+    <AnimatedView style={animatedStyle} className="w-full mb-4">
       <TouchableOpacity
         onPress={() => onPress(property._id)}
         onPressIn={handlePressIn}
@@ -142,7 +143,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           </View>
         </View>
       </TouchableOpacity>
-    </Animated.View>
+    </AnimatedView>
   );
 };
 

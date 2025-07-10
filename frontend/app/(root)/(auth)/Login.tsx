@@ -171,13 +171,17 @@ const Login = () => {
                   href="/ForgotPassword"
                   className="font-rubik-extrabold font-bold text-base "
                 >
-                  Forgot password?
+                  <Text className="font-rubik-extrabold font-bold text-base ">
+                    Forgot password?
+                  </Text>
                 </Link>
                 <Link
                   href="/VerifyEmail"
                   className="font-rubik-extrabold font-bold text-base "
                 >
-                  Verify Email?
+                  <Text className="font-rubik-extrabold font-bold text-base ">
+                    Verify Email?
+                  </Text>
                 </Link>
               </View>
               {/* login button */}

@@ -1,21 +1,19 @@
 {
   "cli": {
-    "version": ">= 16.4.1",
-    "appVersionSource": "remote"
+    "version": ">= 3.0.0"
   },
   "build": {
-    "development": {
+    "preview": {
       "developmentClient": true,
       "distribution": "internal"
     },
-    "preview": {
-      "distribution": "internal"
-    },
     "production": {
-      "autoIncrement": true
+      "android": {
+        "workflow": "managed"
+      },
+      "ios": {
+        "workflow": "managed"
+      }
     }
-  },
-  "submit": {
-    "production": {}
   }
 }
