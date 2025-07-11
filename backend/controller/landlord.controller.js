@@ -24,7 +24,6 @@ const landlordController = {
         const location = JSON.parse(req.body.location);
         const features = JSON.parse(req.body.features || "[]");
         const fees = JSON.parse(req.body.fees);
-        const caution = parseFloat(req.body.caution || "0");
 
 
         const images = req.files?.map((file) => file.path); // Or `file.filename` depending on storage
@@ -37,7 +36,7 @@ const landlordController = {
         }
 
         if (
-            allFieldsRequired(
+            allFieldsRequired([
                 title,
                 description,
                 propertyType,
@@ -48,7 +47,7 @@ const landlordController = {
                 location?.state,
                 location?.country,
                 isAvailable
-            )
+            ])
         ) {
             return res.status(400).json({
                 success: false,

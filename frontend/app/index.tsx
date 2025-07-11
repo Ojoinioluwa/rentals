@@ -8,7 +8,7 @@ export default function Index() {
   useEffect(() => {
     // Redirect to LandingPage as soon as the index loads
     router.replace("/LandingPage");
-  }, []);
+  }, [router]);
 
   return (
     <View
@@ -18,7 +18,7 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      {/* to indicate loading when assests aren't ready */}
+      {/* to indicate loading when assets aren't ready */}
       <ActivityIndicator size="large" color="#0061FF" />
     </View>
   );
