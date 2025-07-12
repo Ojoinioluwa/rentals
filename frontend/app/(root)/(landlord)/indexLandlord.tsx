@@ -5,6 +5,7 @@ import { ScrollView, Text, View } from "react-native";
 import { FadeInUp, Layout } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AnimatedView } from "../LandlordComponents/UploadImages";
+import MapScreen from "@/components/MapScreen";
 // import { useRouter } from 'expo-router'; // Uncomment if using Expo Router for navigation
 
 // Helper component for animated action cards
@@ -82,6 +83,7 @@ const HomeScreen: React.FC = () => {
             delay={100}
           />
         </AnimatedView>
+        <MapScreen />
         <View className="h-10" />
         {/* Spacer for bottom */}
       </ScrollView>

@@ -110,7 +110,7 @@ const Register = () => {
           <View className="mt-12">
             {/* first Name */}
             <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
-              <Image source={icons.person} className="size-5 ml-5 " />
+              <Image source={icons.eye} className="size-5 ml-5 " />
               <TextInput
                 value={formik.values.firstName}
                 editable={!isPending}
@@ -128,7 +128,7 @@ const Register = () => {
             )}
             {/* last name */}
             <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
-              <Image source={icons.person} className="size-5 ml-5 " />
+              <Image source={icons.eye} className="size-5 ml-5 " />
               <TextInput
                 value={formik.values.lastName}
                 editable={!isPending}
@@ -147,7 +147,7 @@ const Register = () => {
 
             {/* email */}
             <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
-              <Image source={icons.send} className="size-5 ml-5" />
+              <Image source={icons.location} className="size-5 ml-5" />
               <TextInput
                 value={formik.values.email}
                 editable={!isPending}
@@ -166,7 +166,7 @@ const Register = () => {
 
             {/* phonenumber */}
             <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
-              <Image source={icons.phone} className="size-5 ml-5" />
+              <Image source={icons.language} className="size-5 ml-5" />
               <TextInput
                 value={formik.values.phoneNumber}
                 editable={!isPending}
@@ -202,7 +202,7 @@ const Register = () => {
             )}
             {/* password */}
             <View className="bg-white py-3 rounded-full flex flex-row items-center mb-1 mt-4">
-              <Image source={icons.shield} className="size-5 ml-5" />
+              <Image source={icons.info} className="size-5 ml-5" />
               <TextInput
                 value={formik.values.password}
                 editable={!isPending}
@@ -231,7 +231,7 @@ const Register = () => {
 
             {/* confirm password */}
             <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
-              <Image source={icons.shield} className="size-5 ml-5" />
+              <Image source={icons.info} className="size-5 ml-5" />
               <TextInput
                 value={formik.values.confirmPassword}
                 editable={!isPending}

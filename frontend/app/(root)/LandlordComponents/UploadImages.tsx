@@ -1,3 +1,4 @@
+import { optimizeImage } from "@/components/ImageOptimizer";
 import { uploadPropertyImages } from "@/services/landlord/landlordServices";
 import { QueryClient, useMutation } from "@tanstack/react-query";
 import * as ImagePicker from "expo-image-picker";
@@ -53,9 +54,10 @@ const UploadImagesScreen = () => {
     });
 
     if (!result.canceled) {
-      const selectedUri = result.assets[0].uri;
-      setSelectedImages((prev) => [...prev, selectedUri]);
-      Toast.show({ type: "info", text1: "Image added." });
+      const originalUri = result.assets[0].uri;
+      const optimizedUri = await optimizeImage(originalUri);
+      setSelectedImages((prev) => [...prev, optimizedUri]);
+      Toast.show({ type: "info", text1: "Image optimized and added." });
     }
   };
 

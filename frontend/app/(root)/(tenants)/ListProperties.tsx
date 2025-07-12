@@ -24,6 +24,7 @@ import {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AnimatedView } from "../LandlordComponents/UploadImages";
+import LocationSearchInput from "@/components/LocationSearch";
 
 // Main AllPropertiesScreen Component
 const AllPropertiesScreen: React.FC = () => {
@@ -44,9 +45,11 @@ const AllPropertiesScreen: React.FC = () => {
   const [furnishedFilter, setFurnishedFilter] = useState<boolean | undefined>(
     undefined
   );
-  // const [city, setCity] = useState<string>("");
-  // const [state, setState] = useState<string>("");
-  // const [country, setCountry] = useState<string>("");
+  const [searchLocation, setSearchLocation] = useState<{
+    label: string;
+    latitude: number;
+    longitude: number;
+  } | null>(null);
 
   const router = useRouter();
 
@@ -61,8 +64,8 @@ const AllPropertiesScreen: React.FC = () => {
 
   const toggleFilterVisibility = () => {
     setShowFilters(!showFilters);
-    filterHeight.value = withTiming(showFilters ? 0 : 600, {
-      // Max height for filter section
+    filterHeight.value = withTiming(showFilters ? 0 : 750, {
+      // Adjusted max height for filter section to accommodate new input
       duration: 300,
       easing: Easing.inOut(Easing.ease),
     });
@@ -78,6 +81,8 @@ const AllPropertiesScreen: React.FC = () => {
     bathroomsFilter,
     toiletsFilter,
     furnishedFilter,
+    searchLocation?.latitude,
+    searchLocation?.longitude,
   ];
 
   const { data, isLoading, error, refetch } = useQuery({
@@ -92,6 +97,8 @@ const AllPropertiesScreen: React.FC = () => {
         numOfBathroom: bathroomsFilter ? Number(bathroomsFilter) : undefined,
         numOfToilets: toiletsFilter ? Number(toiletsFilter) : undefined,
         isFurnished: furnishedFilter,
+        latitude: searchLocation?.latitude,
+        longitude: searchLocation?.longitude,
       }),
   });
 
@@ -116,18 +123,6 @@ const AllPropertiesScreen: React.FC = () => {
     }
   };
 
-  // Function to handle the search action
-  // const handleSearch = () => {
-  //   // Here you would typically trigger your API call or navigation
-  //   Alert.alert(
-  //     "Search Initiated",
-  //     `Searching for properties in:\nCity: ${city || "Any"}\nState: ${
-  //       state || "Any"
-  //     }\nCountry: ${country || "Any"}`
-  //   );
-  //   // Example: router.push(`/properties?city=${city}&state=${state}&country=${country}`);
-  // };
-
   const handlePropertyPress = (propertyId: string) => {
     router.push({
       pathname: "/TenantComponents/PropertyDetailsTenant",
@@ -150,19 +145,6 @@ const AllPropertiesScreen: React.FC = () => {
             Find your next perfect home or office space.
           </Text>
         </AnimatedView>
-
-        {/* <LocationSearchBar
-          city={city}
-          setCity={setCity}
-          state={state}
-          setState={setState}
-          country={country}
-          setCountry={setCountry}
-          onSearch={handleSearch}
-          placeholderCity="e.g. Lagos" // You can override placeholders
-          placeholderState="e.g. Lagos"
-          placeholderCountry="e.g. Nigeria"
-        /> */}
 
         {/* Filter Section Toggle */}
         <AnimatedView entering={FadeInUp.delay(200).duration(500)}>
@@ -194,6 +176,9 @@ const AllPropertiesScreen: React.FC = () => {
             <Text className="text-blue-700 text-xl font-bold mb-4">
               Filter Properties
             </Text>
+
+            {/* Location Search Input */}
+            <LocationSearchInput onLocationSelect={setSearchLocation} />
 
             {/* Property Type Filter */}
             <View className="mb-4">
@@ -332,7 +317,6 @@ const AllPropertiesScreen: React.FC = () => {
         ) : error ? (
           <View className="flex-1 justify-center items-center py-10">
             <Text className="text-red-500 text-lg text-center">
-              {" "}
               {error instanceof Error ? error.message : "Property not found."}
             </Text>
             <TouchableOpacity

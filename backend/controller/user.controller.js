@@ -112,6 +112,7 @@ const userController = {
     // login the user
     login: asyncHandler(async (req, res) => {
         const { email, password } = req.body;
+        console.log(email, password)
         if (!email || !password) {
             res.status(400)
             throw new Error("All fields are required")

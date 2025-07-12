@@ -83,6 +83,7 @@ const HomeScreen: React.FC = () => {
             delay={100}
           />
         </AnimatedView>
+
         <View className="h-10" />
         {/* Spacer for bottom */}
       </ScrollView>

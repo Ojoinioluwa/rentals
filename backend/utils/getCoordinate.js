@@ -11,17 +11,18 @@
  * or `null` if the location cannot be geocoded.
  * @throws {Error} Throws an error if the API request fails or returns an error status.
  */
-async function getCoordinates(city, state, apiKey, country = 'Nigeria') {
+async function getCoordinates(address, city, state, apiKey, country = 'Nigeria') {
     if (!city || !state || !apiKey) {
         throw new Error('City, state, and API key are required.');
     }
 
+    const encodedAddress = encodeURIComponent(address.trim());
     const encodedCity = encodeURIComponent(city.trim());
     const encodedState = encodeURIComponent(state.trim());
     const encodedCountry = encodeURIComponent(country.trim());
 
     // Construct the query string for OpenCage
-    const query = `${encodedCity}, ${encodedState}, ${encodedCountry}`;
+    const query = `${encodedAddress}, ${encodedCity}, ${encodedState}, ${encodedCountry}`;
     const apiUrl = `https://api.opencagedata.com/geocode/v1/json?q=${query}&key=${apiKey}`;
 
     try {

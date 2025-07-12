@@ -19,9 +19,11 @@ const propertyController = {
             numOfToilets,
             furnished,
             search,
+            longitude,
+            latitude
         } = req.query;
 
-        // Validate inputs
+        // Validate numeric inputs
         if (numOfBedroom && isNaN(numOfBedroom))
             return res.status(400).json({ success: false, message: "Invalid bedroom number" });
 
@@ -40,47 +42,61 @@ const propertyController = {
         if (numOfBathroom) filter.bathrooms = Number(numOfBathroom);
         if (numOfToilets) filter.toilets = Number(numOfToilets);
 
-        // Add fuzzy search on location fields
-        if (search) {
+        const parsedLat = latitude ? parseFloat(latitude) : null;
+        const parsedLng = longitude ? parseFloat(longitude) : null;
+        console.log(parsedLat, parsedLng)
+
+        let properties = [];
+        let total = 0;
+
+        // 🔍 Use geo spatial filter if lat/lng provided and valid
+        if (parsedLat !== null && parsedLng !== null && !isNaN(parsedLat) && !isNaN(parsedLng)) {
+            const geoFilter = {
+                ...filter,
+                "location.coordinates": {
+                    $geoWithin: {
+                        $centerSphere: [
+                            [parsedLng, parsedLat],
+                            40 / 6378.1, // 15km radius
+                        ],
+                    },
+                },
+            };
+
+            total = await Property.countDocuments(geoFilter);
+            properties = await Property.find(geoFilter)
+                .populate("landlord", "email firstName lastName")
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean();
+        }
+        // 🔎 Fallback to text-based fuzzy search
+        else if (search) {
             filter.$or = [
                 { city: { $regex: search, $options: "i" } },
                 { state: { $regex: search, $options: "i" } },
                 { address: { $regex: search, $options: "i" } },
             ];
+
+            total = await Property.countDocuments(filter);
+            properties = await Property.find(filter)
+                .populate("landlord", "email firstName lastName")
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean();
         }
-
-        let total = await Property.countDocuments(filter);
-        let properties = await Property.find(filter)
-            .populate("landlord", "email firstName lastName")
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit)
-            .lean();
-
-        // Fallback logic: If no match, try nearby locations
-        // let suggestedProperties = [];
-
-        // if (properties.length === 0 && search) {
-        //     const geoData = await getCoordinates(search, process.env.GEO_API_KEY); // You already have this util
-
-        //     if (geoData) {
-        //         suggestedProperties = await Property.aggregate([
-        //             {
-        //                 $geoNear: {
-        //                     near: {
-        //                         type: "Point",
-        //                         coordinates: [geoData.longitude, geoData.latitude],
-        //                     },
-        //                     distanceField: "distance",
-        //                     maxDistance: 15000, // 15 km range
-        //                     spherical: true,
-        //                     key: "location.coordinates", // Adjust if your schema differs
-        //                 },
-        //             },
-        //             { $limit: 10 },
-        //         ]);
-        //     }
-        // }
+        // 🔁 No search or lat/lng — just fetch by other filters
+        else {
+            total = await Property.countDocuments(filter);
+            properties = await Property.find(filter)
+                .populate("landlord", "email firstName lastName")
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean();
+        }
 
         return res.status(200).json({
             success: true,
@@ -90,7 +106,6 @@ const propertyController = {
             totalPages: Math.ceil(total / limit),
             totalProperties: total,
             properties,
-            // suggestedProperties,
         });
     }),
 

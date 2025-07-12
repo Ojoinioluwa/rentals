@@ -1,3 +1,4 @@
+import { optimizeImage } from "@/components/ImageOptimizer";
 import {
   availableFeatures,
   FormInput,
@@ -144,7 +145,8 @@ const AddPropertyForm: React.FC = () => {
 
     if (!result.canceled && result.assets?.length > 0) {
       const uri = result.assets[0].uri;
-      setSelectedImages((prev) => [...prev, uri]);
+      const optimizedUri = await optimizeImage(uri);
+      setSelectedImages((prev) => [...prev, optimizedUri]);
 
       // Also update Formik field
       formik.setFieldValue("images", [...formik.values.images, uri]);

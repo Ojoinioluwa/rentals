@@ -20,6 +20,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AnimatedView } from "./UploadImages";
+import MapScreen from "@/components/MapScreen";
 
 const PropertyDetailsScreen: React.FC = () => {
   const router = useRouter();
@@ -48,6 +49,7 @@ const PropertyDetailsScreen: React.FC = () => {
     setCurrentImageIndex(index);
     setShouldFadeIn(true);
   };
+  console.log(property?.location);
 
   // Step 2: Wrap transition
   const switchImage = (newIndex: number) => {
@@ -312,6 +314,18 @@ const PropertyDetailsScreen: React.FC = () => {
             </Text>
             {/*  TODO: embed the mao that is need for to make the project more bulky and pleasing to the eye*/}
             {/* You could embed a map component here using the coordinates */}
+          </AnimatedView>
+
+          <AnimatedView
+            entering={FadeInUp.delay(900).duration(600)}
+            className="bg-white p-4 rounded-xl shadow-md mb-4"
+          >
+            <View className="h-[200px] bg-green-100">
+              <MapScreen
+                latitude={property?.location.coordinates.coordinates[1]}
+                longitude={property?.location.coordinates.coordinates[0]}
+              />
+            </View>
           </AnimatedView>
 
           <AnimatedView

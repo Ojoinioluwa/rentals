@@ -21,6 +21,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AnimatedView } from "../LandlordComponents/UploadImages";
+import MapScreen from "@/components/MapScreen";
 
 const TenantPropertyDetailsScreen: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -312,6 +313,17 @@ const TenantPropertyDetailsScreen: React.FC = () => {
               🌍 {property.location.country}
             </Text>
             {/* You could embed a map component here using the coordinates */}
+          </AnimatedView>
+          <AnimatedView
+            entering={FadeInUp.delay(900).duration(600)}
+            className="bg-white p-4 rounded-xl shadow-md mb-4"
+          >
+            <View className="h-[200px] bg-green-100">
+              <MapScreen
+                latitude={property?.location.coordinates.coordinates[1]}
+                longitude={property?.location.coordinates.coordinates[0]}
+              />
+            </View>
           </AnimatedView>
 
           {/* Landlord Info */}

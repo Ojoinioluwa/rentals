@@ -43,10 +43,6 @@ const Login = () => {
     mutationFn: LoginAPI,
   });
 
-  const handleLogin = () => {
-    formik.handleSubmit();
-  };
-
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -56,6 +52,7 @@ const Login = () => {
     onSubmit: async (values) => {
       try {
         const response = await mutateAsync(values);
+        console.log(values);
         await AsyncStorage.setItem(
           "user",
           JSON.stringify({
@@ -69,7 +66,8 @@ const Login = () => {
           })
         );
 
-        const role = response.user.role;
+        const role = response?.user?.role;
+        console.log(role);
 
         dispatch(loginAction({ ...response, role }));
 
@@ -97,8 +95,12 @@ const Login = () => {
     },
   });
 
+  const handleLogin = () => {
+    formik.handleSubmit();
+  };
+
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="h-[100vh] bg-white">
       <ScrollView className="bg-white">
         <View className="px-2 pt-10">
           {/* Login Image */}
@@ -114,11 +116,11 @@ const Login = () => {
             Login into your existing account
           </Text>
           {/* form section */}
-          <KeyboardAvoidingView behavior="padding" className="">
+          <KeyboardAvoidingView behavior="padding" className="h-1/3">
             <View className="p-5 mt-2">
               {/* Email */}
               <View className="w-full py-3 px-4 bg-gray-50 rounded-full mb-5 flex-row items-center">
-                <Image source={icons.send} className="w-5 h-5" />
+                <Image source={icons.info} className="w-5 h-5" />
                 <TextInput
                   editable={!isPending}
                   autoCapitalize="none"
@@ -138,8 +140,8 @@ const Login = () => {
                 </Text>
               )}
               {/* password */}
-              <View className="bg-white py-3 rounded-full flex flex-row items-center mb-6">
-                <Image source={icons.shield} className="size-5 ml-5" />
+              <View className="w-full py-3 px-4 bg-gray-50 rounded-full mb-5 flex-row items-center">
+                <Image source={icons.info} className="size-5 ml-5" />
                 <TextInput
                   editable={!isPending}
                   secureTextEntry={!passVisible}
@@ -148,6 +150,7 @@ const Login = () => {
                   className="font-rubix-medium flex-1"
                   onChangeText={formik.handleChange("password")}
                   onBlur={formik.handleBlur("password")}
+                  value={formik.values.password}
                 />
                 <TouchableOpacity
                   onPress={() => setPassVisible(!passVisible)}

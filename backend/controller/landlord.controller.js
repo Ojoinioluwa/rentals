@@ -68,6 +68,7 @@ const landlordController = {
         }
 
         const coordinates = await getCoordinates(
+            location.address,
             location.city,
             location.state,
             process.env.GEO_API_KEY
