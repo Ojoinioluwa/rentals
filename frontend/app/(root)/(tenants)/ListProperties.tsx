@@ -111,6 +111,25 @@ const AllPropertiesScreen: React.FC = () => {
 
   const properties = data?.properties;
 
+  const resetFilters = () => {
+    setPage(1);
+    setIsAvailableFilter(undefined);
+    setPropertyTypeFilter("");
+    setBedroomsFilter("");
+    setBathroomsFilter("");
+    setToiletsFilter("");
+    setFurnishedFilter(undefined);
+    setSearchLocation(null);
+    setShowFilters(false);
+
+    filterHeight.value = withTiming(0, {
+      duration: 300,
+      easing: Easing.inOut(Easing.ease),
+    });
+
+    refetch();
+  };
+
   const handleNextPage = () => {
     if (page < totalPages) {
       setPage(page + 1);
@@ -167,6 +186,7 @@ const AllPropertiesScreen: React.FC = () => {
           className="overflow-hidden bg-white p-5 rounded-xl shadow-md mb-4"
         >
           <View
+            className="h-fit"
             onLayout={(event) => {
               if (showFilters && filterHeight.value === 0) {
                 filterHeight.value = event.nativeEvent.layout.height;
@@ -295,12 +315,12 @@ const AllPropertiesScreen: React.FC = () => {
 
             {/* Apply Filters Button (Optional, can also apply on change) */}
             <TouchableOpacity
-              onPress={() => setPage(1)} // Reset to first page on filter apply
+              onPress={resetFilters} // Reset to first page on filter apply
               className="bg-blue-600 py-3 rounded-xl flex-row items-center justify-center mt-4 shadow-md"
               disabled={isLoading}
             >
               <Text className="text-white text-lg font-semibold">
-                Apply Filters
+                reset Filters
               </Text>
             </TouchableOpacity>
           </View>

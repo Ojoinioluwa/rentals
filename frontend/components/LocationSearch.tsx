@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, FlatList, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity } from "react-native";
 import { TextInput, Text, ActivityIndicator } from "react-native-paper";
 import axios from "axios";
 import { AnimatedView } from "@/app/(root)/LandlordComponents/UploadImages";
@@ -19,9 +19,10 @@ export default function LocationSearchInput({ onLocationSelect }: Props) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [hasSelected, setHasSelected] = useState(false); // New state
 
   useEffect(() => {
-    if (query.length < 3) {
+    if (query.length < 3 || hasSelected) {
       setResults([]);
       return;
     }
@@ -31,7 +32,7 @@ export default function LocationSearchInput({ onLocationSelect }: Props) {
     }, 500); // debounce
 
     return () => clearTimeout(timeoutId);
-  }, [query]);
+  }, [query, hasSelected]);
 
   const fetchSuggestions = async (input: string) => {
     try {
@@ -44,7 +45,7 @@ export default function LocationSearchInput({ onLocationSelect }: Props) {
             apiKey: GEOAPIFY_KEY,
             limit: 5,
             lang: "en",
-            filter: "countrycode:ng", // restrict to Nigeria
+            filter: "countrycode:ng",
           },
         }
       );
@@ -67,7 +68,13 @@ export default function LocationSearchInput({ onLocationSelect }: Props) {
     });
 
     setQuery(label);
-    setResults([]); // Clear dropdown
+    setResults([]);
+    setHasSelected(true); // mark as selected
+  };
+
+  const handleInputChange = (text: string) => {
+    setQuery(text);
+    setHasSelected(false); // user typed again, allow suggestions to show
   };
 
   return (
@@ -75,21 +82,28 @@ export default function LocationSearchInput({ onLocationSelect }: Props) {
       <TextInput
         label="Search location"
         value={query}
-        onChangeText={setQuery}
+        onChangeText={handleInputChange}
         mode="outlined"
         right={loading ? <ActivityIndicator animating size="small" /> : null}
       />
 
-      <AnimatedView
-        entering={FadeInUp.delay(900).duration(600)}
-        className="bg-white p-4 rounded-xl shadow-md mb-4"
-      >
-        {results.length > 0 && (
-          <FlatList
-            data={results}
-            keyExtractor={(item) => item.properties.place_id.toString()}
-            renderItem={({ item }) => (
+      {results.length > 0 && !hasSelected && (
+        <AnimatedView
+          entering={FadeInUp.delay(500).duration(600)}
+          className="bg-white p-4 rounded-xl shadow-md mb-4"
+        >
+          <View
+            style={{
+              maxHeight: 300,
+              borderWidth: 1,
+              borderColor: "#ccc",
+              borderRadius: 4,
+              marginTop: 4,
+            }}
+          >
+            {results.map((item, index) => (
               <TouchableOpacity
+                key={`${item.properties.place_id.toString()} ${index}`}
                 style={{
                   padding: 10,
                   borderBottomWidth: 1,
@@ -100,17 +114,10 @@ export default function LocationSearchInput({ onLocationSelect }: Props) {
               >
                 <Text>{item.properties.formatted}</Text>
               </TouchableOpacity>
-            )}
-            style={{
-              maxHeight: 180,
-              borderWidth: 1,
-              borderColor: "#ccc",
-              borderRadius: 4,
-              marginTop: 4,
-            }}
-          />
-        )}
-      </AnimatedView>
+            ))}
+          </View>
+        </AnimatedView>
+      )}
     </View>
   );
 }

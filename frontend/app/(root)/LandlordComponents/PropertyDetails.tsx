@@ -49,7 +49,6 @@ const PropertyDetailsScreen: React.FC = () => {
     setCurrentImageIndex(index);
     setShouldFadeIn(true);
   };
-  console.log(property?.location);
 
   // Step 2: Wrap transition
   const switchImage = (newIndex: number) => {
