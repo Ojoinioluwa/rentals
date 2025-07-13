@@ -23,21 +23,26 @@ const validationSchema = Yup.object({
   email: Yup.string().required("Email is required").email("Email is invalid"),
   password: Yup.string()
     .required("Password is required")
-    .min(6, "Password must be at least 6 characters"),
-  firstName: Yup.string()
-    .required("name is required")
-    .min(3, "name must be at least 3 characters"),
-  lastName: Yup.string()
-    .required("name is required")
-    .min(3, "name must be at least 3 characters"),
-  phoneNumber: Yup.string()
-    .required("Phone number is required")
-    .min(10, "Phone number must be at least 10 characters"),
+    .min(8, "Password must be at least 8 characters")
+    .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .matches(/\d/, "Password must contain at least one number")
+    .matches(/[^A-Za-z0-9]/, "Password must contain at least one symbol")
+    .matches(/^\S*$/, "Password must not contain spaces"),
   confirmPassword: Yup.string()
     .required("Confirm password is required")
     .oneOf([Yup.ref("password")], "Passwords must match"),
+  firstName: Yup.string()
+    .required("First name is required")
+    .min(3, "First name must be at least 3 characters"),
+  lastName: Yup.string()
+    .required("Last name is required")
+    .min(3, "Last name must be at least 3 characters"),
+  phoneNumber: Yup.string()
+    .required("Phone number is required")
+    .min(10, "Phone number must be at least 10 digits"),
   address: Yup.string().required("Address is required"),
-}); // Adjust this import path
+}); // !move to the schemas folder next time
 
 type Role = {
   auth: {
