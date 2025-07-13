@@ -1,6 +1,7 @@
 import { AnimatedView } from "@/app/(root)/LandlordComponents/UploadImages";
 import {
   FormInputProps,
+  FormPickerPropertyProps,
   FormPickerProps,
   FormSwitchProps,
   PropertyCardProps,
@@ -19,6 +20,7 @@ import {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import { Picker } from "@react-native-picker/picker";
 
 export const propertyTypes = [
   "apartment",
@@ -235,5 +237,37 @@ export const FormPicker: React.FC<FormPickerProps> = ({
     <Text className="text-gray-500 text-xs mt-1 ml-2">
       Options: {options.join(", ")}
     </Text>
+  </View>
+);
+
+export const FormPickerProperty: React.FC<FormPickerPropertyProps> = ({
+  label,
+  value,
+  onValueChange,
+  error,
+  touched,
+  options,
+  icon,
+  editable = true,
+}) => (
+  <View className="mb-4">
+    <Text className="text-gray-700 text-base font-semibold mb-2">{label}</Text>
+    <View className="bg-white py-1 px-2 rounded-xl border border-blue-200">
+      {icon && <View className="mb-1">{icon}</View>}
+      <Picker
+        selectedValue={value}
+        enabled={editable}
+        onValueChange={onValueChange}
+        style={{ color: "#111", fontSize: 16 }}
+      >
+        <Picker.Item label={label} value="" />
+        {options.map((opt) => (
+          <Picker.Item key={opt} label={opt} value={opt.toLowerCase()} />
+        ))}
+      </Picker>
+    </View>
+    {touched && error && (
+      <Text className="text-red-500 text-sm mt-1 ml-2">{error}</Text>
+    )}
   </View>
 );

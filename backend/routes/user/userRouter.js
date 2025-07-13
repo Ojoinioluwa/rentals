@@ -3,20 +3,20 @@ const userController = require("../../controller/user.controller");
 const authLimiter = require("../../middlewares/authLimiter");
 const isAuthenticated = require("../../middlewares/isAuth");
 
-// instantiate the user router
 const userRouter = express.Router();
 
-
-// register the user
+// Auth
 userRouter.post("/auth/register", userController.register);
+userRouter.post("/auth/login", authLimiter, userController.login);
+userRouter.post("/auth/verify-user", userController.verifyUser);
 
-// login in the user
-userRouter.post('/auth/login', authLimiter, userController.login)
+// Password Recovery
+userRouter.post("/auth/forgot-password", userController.forgotPassword);
+userRouter.post("/auth/reset-password", userController.resetPassword);
+userRouter.put("/auth/change-password", isAuthenticated, userController.changePassword);
 
-// verify email
-userRouter.post("/auth/verify-user", userController.verifyUser)
+// Profile
+userRouter.get("/profile", isAuthenticated, userController.getUserProfile);
+userRouter.put("/profile", isAuthenticated, userController.updateProfile);
 
-// get users profile
-userRouter.get("/getUserProfile", isAuthenticated, userController.getUserProfile)
-
-module.exports = userRouter
+module.exports = userRouter;

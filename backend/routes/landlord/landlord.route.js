@@ -23,13 +23,13 @@ propertyRouter.get("/my", authorize("landlord"), landlordController.getMyPropert
 propertyRouter.get("/getById/:id", authorize("landlord"), landlordController.getSingleProperty);
 
 // Update property
-propertyRouter.patch("/:id", authorize("landlord"), landlordController.updateProperty);
+propertyRouter.put("/:id", authorize("landlord"), landlordController.updateProperty);
 
 // Delete property
 propertyRouter.delete("/:id", authorize("landlord"), landlordController.deleteProperty);
 
 // Toggle availability
-propertyRouter.patch("/:id/toggle", authorize("landlord"), landlordController.toggleAvailability);
+propertyRouter.put("/:id/toggle", authorize("landlord"), landlordController.toggleAvailability);
 
 // Upload property images
 propertyRouter.post(

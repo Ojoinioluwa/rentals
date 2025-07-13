@@ -100,25 +100,10 @@ export const EditPropertySchema = Yup.object().shape({
     billingCycle: Yup.string()
         .required("Billing cycle is required")
         .oneOf(["monthly", "yearly"], "Invalid billing cycle"),
-    fees: Yup.object().shape({
-        caution: Yup.number()
-            .min(0, "Caution fee cannot be negative")
-            .typeError("Caution fee must be a number"),
-    }),
+    caution: Yup.number()
+        .min(0, "Caution fee cannot be negative")
+        .typeError("Caution fee must be a number"),
     features: Yup.array().of(Yup.string()),
-    images: Yup.array().of(Yup.string()).min(1, "At least one image is required"),
-    location: Yup.object().shape({
-        address: Yup.string().required("Address is required"),
-        city: Yup.string().required("City is required"),
-        state: Yup.string().required("State is required"),
-        country: Yup.string().required("Country is required"),
-        coordinates: Yup.array()
-            .of(Yup.number().required())
-            .min(2, "Coordinates must include latitude and longitude")
-            .max(2, "Coordinates must include only latitude and longitude")
-            .required("Coordinates are required")
-            .typeError("Coordinates must be an array of numbers"),
-    }),
     isAvailable: Yup.boolean(),
 });
 

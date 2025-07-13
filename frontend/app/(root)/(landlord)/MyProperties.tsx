@@ -117,6 +117,16 @@ const MyPropertiesScreen: React.FC = () => {
     });
   };
 
+  const resetFilters = () => {
+    setIsAvailableFilter(undefined);
+    setPropertyTypeFilter("");
+    setBedroomsFilter("");
+    setBathroomsFilter("");
+    setToiletsFilter("");
+    setFurnishedFilter(undefined);
+    setPage(1); // Reset to first page
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-blue-50 pb-12">
       <ScrollView className="flex-1 p-5">
@@ -271,12 +281,12 @@ const MyPropertiesScreen: React.FC = () => {
 
             {/* Apply Filters Button (Optional, can also apply on change) */}
             <TouchableOpacity
-              onPress={() => setPage(1)} // Reset to first page on filter apply
+              onPress={resetFilters} // Reset to first page on filter apply
               className="bg-blue-600 py-3 rounded-xl flex-row items-center justify-center mt-4 shadow-md"
               disabled={isLoading}
             >
               <Text className="text-white text-lg font-semibold">
-                Apply Filters
+                Reset Filters
               </Text>
             </TouchableOpacity>
           </View>

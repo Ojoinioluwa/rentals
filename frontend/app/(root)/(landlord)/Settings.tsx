@@ -30,7 +30,7 @@ import { AnimatedView } from "../LandlordComponents/UploadImages";
 const Settings = () => {
   const [notificationsEnabled, setNotificationsEnabled] =
     useState<boolean>(true);
-  const [darkModeEnabled, setDarkModeEnabled] = useState<boolean>(false);
+
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -175,19 +175,6 @@ const Settings = () => {
               }}
             >
               <SettingItem
-                icon={<Text className="text-blue-600 text-lg">🎨</Text>}
-                title="Dark Mode"
-                onPress={() => setDarkModeEnabled(!darkModeEnabled)}
-              >
-                <Switch
-                  trackColor={{ false: "#E0E0E0", true: "#60A5FA" }}
-                  thumbColor={darkModeEnabled ? "#2563EB" : "#F4F4F4"}
-                  ios_backgroundColor="#E0E0E0"
-                  onValueChange={() => setDarkModeEnabled(!darkModeEnabled)}
-                  value={darkModeEnabled}
-                />
-              </SettingItem>
-              <SettingItem
                 icon={<Text className="text-blue-600 text-lg">🌐</Text>}
                 title="Language"
                 onPress={() => router.push("/law/ChangeOfLanguage")}
@@ -211,12 +198,12 @@ const Settings = () => {
           <SettingItem
             icon={<Text className="text-blue-600 text-lg">❓</Text>}
             title="Help & Support"
-            onPress={() => router.push("/HelpSupport")}
+            onPress={() => router.push("/(root)/(auth)/HelpSupport")}
           />
           <SettingItem
             icon={<Text className="text-blue-600 text-lg">⭐</Text>}
             title="Rate Us"
-            onPress={() => console.log("Rate Us")}
+            onPress={() => router.push("/law/RateUs")}
             isLast={true}
           />
         </View>

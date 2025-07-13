@@ -1,6 +1,7 @@
 import { optimizeImage } from "@/components/ImageOptimizer";
 import { uploadPropertyImages } from "@/services/landlord/landlordServices";
-import { QueryClient, useMutation } from "@tanstack/react-query";
+import { queryClient } from "@/utils/queryClient";
+import { useMutation } from "@tanstack/react-query";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -23,7 +24,6 @@ import Toast from "react-native-toast-message";
 export const AnimatedView = Animated.createAnimatedComponent(View);
 const UploadImagesScreen = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const queryClient = new QueryClient();
 
   const { id } = useLocalSearchParams() as { id: string };
   const router = useRouter();

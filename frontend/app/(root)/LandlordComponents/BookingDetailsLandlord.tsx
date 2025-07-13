@@ -4,7 +4,7 @@ import {
   getBookingByLandlord,
   rejectBooking,
 } from "@/services/bookings/bookingsService";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -25,6 +25,7 @@ import Animated, {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { AnimatedView } from "./UploadImages";
+import { queryClient } from "@/utils/queryClient";
 
 // Define types for populated fields based on your controller
 interface LandlordDetails {
@@ -82,8 +83,6 @@ const LandlordBookingDetailsScreen: React.FC = () => {
   const router = useRouter();
 
   const bookingId = id;
-
-  const queryClient = useQueryClient(); // Used for invalidating queries after mutations
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["LandlordsBooking", bookingId],

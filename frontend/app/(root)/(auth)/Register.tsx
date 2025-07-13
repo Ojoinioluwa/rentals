@@ -7,6 +7,8 @@ import React, { useState } from "react";
 import {
   ActivityIndicator,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   Text,
   TextInput,
@@ -104,191 +106,201 @@ const Register = () => {
 
   return (
     <SafeAreaView className="bg-gray-200 flex-1">
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View className="px-5 mt-5 pb-5 ">
-          <Text className="font-rubik-extrabold font-bold text-3xl text-center">
-            Lets Get Started!
-          </Text>
-          <Text className="text-gray-400 text-center font-rubix-light text-xl">
-            Create an Account to start saving
-          </Text>
-          <View className="mt-12">
-            {/* first Name */}
-            <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
-              <Image source={icons.eye} className="size-5 ml-5 " />
-              <TextInput
-                value={formik.values.firstName}
-                editable={!isPending}
-                placeholderTextColor="gray"
-                placeholder="👤 First Name"
-                className="font-rubix-medium flex-1"
-                onChangeText={formik.handleChange("firstName")}
-                onBlur={formik.handleBlur("firstName")}
-              />
-            </View>
-            {formik.touched.firstName && formik.errors.firstName && (
-              <Text className="text-red-500 text-sm mt-1 mb-4">
-                {formik.errors.firstName}
-              </Text>
-            )}
-            {/* last name */}
-            <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
-              <Image source={icons.eye} className="size-5 ml-5 " />
-              <TextInput
-                value={formik.values.lastName}
-                editable={!isPending}
-                placeholderTextColor="gray"
-                placeholder="👤 Last Name"
-                className="font-rubix-medium flex-1"
-                onChangeText={formik.handleChange("lastName")}
-                onBlur={formik.handleBlur("lastName")}
-              />
-            </View>
-            {formik.touched.lastName && formik.errors.lastName && (
-              <Text className="text-red-500 text-sm mt-1 mb-4">
-                {formik.errors.lastName}
-              </Text>
-            )}
-
-            {/* email */}
-            <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
-              <Image source={icons.location} className="size-5 ml-5" />
-              <TextInput
-                value={formik.values.email}
-                editable={!isPending}
-                placeholderTextColor="gray"
-                placeholder="📪 Email"
-                className="font-rubix-medium flex-1"
-                onChangeText={formik.handleChange("email")}
-                onBlur={formik.handleBlur("email")}
-              />
-            </View>
-            {formik.touched.email && formik.errors.email && (
-              <Text className="text-red-500 text-sm mt-1 mb-4">
-                {formik.errors.email}
-              </Text>
-            )}
-
-            {/* phonenumber */}
-            <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
-              <Image source={icons.language} className="size-5 ml-5" />
-              <TextInput
-                value={formik.values.phoneNumber}
-                editable={!isPending}
-                placeholderTextColor="gray"
-                placeholder="📵 Phone"
-                className="font-rubix-medium flex-1"
-                onChangeText={formik.handleChange("phoneNumber")}
-                onBlur={formik.handleBlur("phoneNumber")}
-              />
-            </View>
-            {formik.touched.phoneNumber && formik.errors.phoneNumber && (
-              <Text className="text-red-500 text-sm mt-1 mb-4">
-                {formik.errors.phoneNumber}
-              </Text>
-            )}
-            {/* Address */}
-            <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
-              <Image source={icons.location} className="size-5 ml-5" />
-              <TextInput
-                value={formik.values.address}
-                editable={!isPending}
-                placeholderTextColor="gray"
-                placeholder="Home Address"
-                className="font-rubix-medium flex-1"
-                onChangeText={formik.handleChange("address")}
-                onBlur={formik.handleBlur("address")}
-              />
-            </View>
-            {formik.touched.address && formik.errors.address && (
-              <Text className="text-red-500 text-sm mt-1 mb-4">
-                {formik.errors.address}
-              </Text>
-            )}
-            {/* password */}
-            <View className="bg-white py-3 rounded-full flex flex-row items-center mb-1 mt-4">
-              <Image source={icons.info} className="size-5 ml-5" />
-              <TextInput
-                value={formik.values.password}
-                editable={!isPending}
-                secureTextEntry={!passVisible}
-                placeholderTextColor="gray"
-                placeholder="🔑 Password"
-                className="font-rubix-medium flex-1"
-                onChangeText={formik.handleChange("password")}
-                onBlur={formik.handleBlur("password")}
-              />
-              <TouchableOpacity
-                onPress={() => setPassVisible(!passVisible)}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Image
-                  source={passVisible ? icons.eye : icons.eyeOff}
-                  className="size-6 mr-5"
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+      >
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="px-5 mt-5 pb-5 ">
+            <Text className="font-rubik-extrabold font-bold text-3xl text-center">
+              Lets Get Started!
+            </Text>
+            <Text className="text-gray-400 text-center font-rubix-light text-xl">
+              Create an Account to start saving
+            </Text>
+            <View className="mt-12">
+              {/* first Name */}
+              <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
+                <Image source={icons.eye} className="size-5 ml-5 " />
+                <TextInput
+                  value={formik.values.firstName}
+                  editable={!isPending}
+                  placeholderTextColor="gray"
+                  placeholder="👤 First Name"
+                  className="font-rubix-medium flex-1"
+                  onChangeText={formik.handleChange("firstName")}
+                  onBlur={formik.handleBlur("firstName")}
                 />
-              </TouchableOpacity>
-            </View>
-            {formik.touched.password && formik.errors.password && (
-              <Text className="text-red-500 text-sm mt-1 mb-4">
-                {formik.errors.password}
-              </Text>
-            )}
-
-            {/* confirm password */}
-            <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
-              <Image source={icons.info} className="size-5 ml-5" />
-              <TextInput
-                value={formik.values.confirmPassword}
-                editable={!isPending}
-                secureTextEntry={!confirmPassVisible}
-                placeholderTextColor="gray"
-                placeholder="🔑 Confirm password"
-                className="font-rubix-medium flex-1"
-                onChangeText={formik.handleChange("confirmPassword")}
-                onBlur={formik.handleBlur("confirmPassword")}
-              />
-              <TouchableOpacity
-                onPress={() => setConfirmPassVisible(!confirmPassVisible)}
-              >
-                <Image
-                  source={confirmPassVisible ? icons.eye : icons.eyeOff}
-                  className="size-5 mr-5"
-                />
-              </TouchableOpacity>
-            </View>
-            {formik.touched.confirmPassword &&
-              formik.errors.confirmPassword && (
+              </View>
+              {formik.touched.firstName && formik.errors.firstName && (
                 <Text className="text-red-500 text-sm mt-1 mb-4">
-                  {formik.errors.confirmPassword}
+                  {formik.errors.firstName}
                 </Text>
               )}
-          </View>
-          {/* register */}
-          <View className="flex justify-center items-center mt-5 ">
-            <TouchableOpacity
-              className="bg-blue-950 w-full py-5 rounded-full"
-              onPress={handleRegister}
-            >
-              {isPending ? (
-                <ActivityIndicator />
-              ) : (
-                <Text className="text-white text-center">CREATE ACCOUNT</Text>
+              {/* last name */}
+              <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
+                <Image source={icons.eye} className="size-5 ml-5 " />
+                <TextInput
+                  value={formik.values.lastName}
+                  editable={!isPending}
+                  placeholderTextColor="gray"
+                  placeholder="👤 Last Name"
+                  className="font-rubix-medium flex-1"
+                  onChangeText={formik.handleChange("lastName")}
+                  onBlur={formik.handleBlur("lastName")}
+                />
+              </View>
+              {formik.touched.lastName && formik.errors.lastName && (
+                <Text className="text-red-500 text-sm mt-1 mb-4">
+                  {formik.errors.lastName}
+                </Text>
               )}
-            </TouchableOpacity>
-          </View>
-          <View className="flex items-center  justify-center mt-12">
-            <Text className="text-xl">
-              Already have an account?{" "}
-              <Link
-                href="/Login"
-                className="font-rubik-extrabold font-bold text-blue-950"
+
+              {/* email */}
+              <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
+                <Image source={icons.location} className="size-5 ml-5" />
+                <TextInput
+                  value={formik.values.email}
+                  editable={!isPending}
+                  placeholderTextColor="gray"
+                  placeholder="📪 Email"
+                  className="font-rubix-medium flex-1"
+                  onChangeText={formik.handleChange("email")}
+                  onBlur={formik.handleBlur("email")}
+                />
+              </View>
+              {formik.touched.email && formik.errors.email && (
+                <Text className="text-red-500 text-sm mt-1 mb-4">
+                  {formik.errors.email}
+                </Text>
+              )}
+
+              {/* phonenumber */}
+              <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
+                <Image source={icons.language} className="size-5 ml-5" />
+                <TextInput
+                  value={formik.values.phoneNumber}
+                  editable={!isPending}
+                  placeholderTextColor="gray"
+                  placeholder="📵 Phone"
+                  className="font-rubix-medium flex-1"
+                  onChangeText={formik.handleChange("phoneNumber")}
+                  onBlur={formik.handleBlur("phoneNumber")}
+                />
+              </View>
+              {formik.touched.phoneNumber && formik.errors.phoneNumber && (
+                <Text className="text-red-500 text-sm mt-1 mb-4">
+                  {formik.errors.phoneNumber}
+                </Text>
+              )}
+              {/* Address */}
+              <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
+                <Image source={icons.location} className="size-5 ml-5" />
+                <TextInput
+                  value={formik.values.address}
+                  editable={!isPending}
+                  placeholderTextColor="gray"
+                  placeholder="Home Address"
+                  className="font-rubix-medium flex-1"
+                  onChangeText={formik.handleChange("address")}
+                  onBlur={formik.handleBlur("address")}
+                />
+              </View>
+              {formik.touched.address && formik.errors.address && (
+                <Text className="text-red-500 text-sm mt-1 mb-4">
+                  {formik.errors.address}
+                </Text>
+              )}
+              {/* password */}
+              <View className="bg-white py-3 rounded-full flex flex-row items-center mb-1 mt-4">
+                <Image source={icons.info} className="size-5 ml-5" />
+                <TextInput
+                  value={formik.values.password}
+                  editable={!isPending}
+                  secureTextEntry={!passVisible}
+                  placeholderTextColor="gray"
+                  placeholder="🔑 Password"
+                  className="font-rubix-medium flex-1"
+                  onChangeText={formik.handleChange("password")}
+                  onBlur={formik.handleBlur("password")}
+                />
+                <TouchableOpacity
+                  onPress={() => setPassVisible(!passVisible)}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <Image
+                    source={passVisible ? icons.eye : icons.eyeOff}
+                    className="size-6 mr-5"
+                  />
+                </TouchableOpacity>
+              </View>
+              {formik.touched.password && formik.errors.password && (
+                <Text className="text-red-500 text-sm mt-1 mb-4">
+                  {formik.errors.password}
+                </Text>
+              )}
+
+              {/* confirm password */}
+              <View className="bg-white py-3 rounded-full flex flex-row  items-center mb-1 mt-4">
+                <Image source={icons.info} className="size-5 ml-5" />
+                <TextInput
+                  value={formik.values.confirmPassword}
+                  editable={!isPending}
+                  secureTextEntry={!confirmPassVisible}
+                  placeholderTextColor="gray"
+                  placeholder="🔑 Confirm password"
+                  className="font-rubix-medium flex-1"
+                  onChangeText={formik.handleChange("confirmPassword")}
+                  onBlur={formik.handleBlur("confirmPassword")}
+                />
+                <TouchableOpacity
+                  onPress={() => setConfirmPassVisible(!confirmPassVisible)}
+                >
+                  <Image
+                    source={confirmPassVisible ? icons.eye : icons.eyeOff}
+                    className="size-5 mr-5"
+                  />
+                </TouchableOpacity>
+              </View>
+              {formik.touched.confirmPassword &&
+                formik.errors.confirmPassword && (
+                  <Text className="text-red-500 text-sm mt-1 mb-4">
+                    {formik.errors.confirmPassword}
+                  </Text>
+                )}
+            </View>
+            {/* register */}
+            <View className="flex justify-center items-center mt-5 ">
+              <TouchableOpacity
+                className="bg-blue-950 w-full py-5 rounded-full"
+                onPress={handleRegister}
               >
-                Login here
-              </Link>
-            </Text>
+                {isPending ? (
+                  <ActivityIndicator />
+                ) : (
+                  <Text className="text-white text-center">CREATE ACCOUNT</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+            <View className="flex items-center  justify-center mt-12">
+              <Text className="text-xl">
+                Already have an account?{" "}
+                <Link
+                  href="/Login"
+                  className="font-rubik-extrabold font-bold text-blue-950"
+                >
+                  Login here
+                </Link>
+              </Text>
+            </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

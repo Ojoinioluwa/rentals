@@ -4,14 +4,11 @@ import {
   Linking,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// You might have actual icons, let's use simple text placeholders for now
-// For a real app, consider react-native-vector-icons
 const IconPlaceholder = ({ name }: { name: string }) => (
   <Text className="text-blue-500 text-2xl mr-3">{name}</Text>
 );
@@ -59,14 +56,14 @@ const HelpSupportPage: React.FC = () => {
       id: "email",
       label: "Email Us",
       icon: "✉️",
-      action: () => Linking.openURL("mailto:support@yourdomain.com"),
+      action: () => Linking.openURL("mailto:Olabodexalabi@gmail.com"),
       description: "Get in touch via email for detailed inquiries.",
     },
     {
       id: "call",
       label: "Call Support",
       icon: "📞",
-      action: () => Linking.openURL("tel:+2349019802305"), // Example Nigerian number
+      action: () => Linking.openURL("tel:+2348034099796"), // Example Nigerian number
       description:
         "Speak directly with our support team during business hours.",
     },
@@ -74,7 +71,7 @@ const HelpSupportPage: React.FC = () => {
       id: "whatsapp",
       label: "Chat on WhatsApp",
       icon: "💬",
-      action: () => Linking.openURL("https://wa.me/2349019802305"), // Example Nigerian number
+      action: () => Linking.openURL("https://wa.me/2348034099796"), // Example Nigerian number
       description: "Quick chat support for general questions.",
     },
   ];
@@ -96,7 +93,7 @@ const HelpSupportPage: React.FC = () => {
         </View>
 
         {/* Search Bar Section */}
-        <View className="p-5 bg-white mb-5 shadow-sm">
+        {/* <View className="p-5 bg-white mb-5 shadow-sm">
           <Text className="text-xl font-semibold text-gray-800 mb-4 text-center">
             How can we help you?
           </Text>
@@ -108,7 +105,7 @@ const HelpSupportPage: React.FC = () => {
               placeholderTextColor="#9CA3AF"
             />
           </View>
-        </View>
+        </View> */}
 
         {/* FAQ Section */}
         <View className="bg-white rounded-xl mx-4 mb-5 p-5 shadow-md">
@@ -164,12 +161,10 @@ const HelpSupportPage: React.FC = () => {
         {/* Legal/Info Section (Optional but common) */}
         <View className="mx-4 mt-5 items-center">
           <Text className="text-gray-500 text-sm mb-2">App Version 1.0.0</Text>
-          <TouchableOpacity
-            onPress={() => console.log("View Terms of Service")}
-          >
+          <TouchableOpacity onPress={() => router.push("/law/TermsOfService")}>
             <Text className="text-blue-600 text-sm mb-1">Terms of Service</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => console.log("View Privacy Policy")}>
+          <TouchableOpacity onPress={() => router.push("/law/PrivacyPolicy")}>
             <Text className="text-blue-600 text-sm">Privacy Policy</Text>
           </TouchableOpacity>
         </View>

@@ -7,6 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Link, useRouter } from "expo-router";
 import { useFormik } from "formik";
 import React, { useState } from "react";
+
 import {
   ActivityIndicator,
   Image,
@@ -16,6 +17,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Platform,
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -23,13 +25,11 @@ import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 
-// TODO: add login functions
-// TODO: add the correct icons for the text field
 const validationSchema = Yup.object({
   email: Yup.string().required("Email is required").email("Email is invalid"),
   password: Yup.string()
     .required("Password is required")
-    .min(6, "Password must be at least 6 characters"),
+    .min(8, "Password must be at least 8 characters"),
 });
 
 const Login = () => {
@@ -101,22 +101,26 @@ const Login = () => {
 
   return (
     <SafeAreaView className="h-[100vh] bg-white">
-      <ScrollView className="bg-white">
-        <View className="px-2 pt-10">
-          {/* Login Image */}
-          <Image
-            source={images.Login}
-            resizeMode="contain"
-            className="w-full h-[300]"
-          />
-          <Text className="font-rubik-bold text-3xl text-center font-bold mt-5">
-            Welcome Back!
-          </Text>
-          <Text className="font-rubix-light text-gray-400 text-center mt-2 text-xl">
-            Login into your existing account
-          </Text>
-          {/* form section */}
-          <KeyboardAvoidingView behavior="padding" className="h-1/3">
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+      >
+        <ScrollView className="bg-white">
+          <View className="px-2 pt-10">
+            {/* Login Image */}
+            <Image
+              source={images.Login}
+              resizeMode="contain"
+              className="w-full h-[300]"
+            />
+            <Text className="font-rubik-bold text-3xl text-center font-bold mt-5">
+              Welcome Back!
+            </Text>
+            <Text className="font-rubix-light text-gray-400 text-center mt-2 text-xl">
+              Login into your existing account
+            </Text>
+            {/* form section */}
             <View className="p-5 mt-2">
               {/* Email */}
               <View className="w-full py-3 px-4 bg-gray-50 rounded-full mb-5 flex-row items-center">
@@ -126,7 +130,7 @@ const Login = () => {
                   autoCapitalize="none"
                   autoComplete="email"
                   placeholder="📧 Enter your Email here"
-                  placeholderTextColor="gray"
+                  placeholderTextColor="black"
                   className="text-sm font-rubik text-black-300 ml-2"
                   style={{ flex: 1 }}
                   onChangeText={formik.handleChange("email")}
@@ -145,9 +149,9 @@ const Login = () => {
                 <TextInput
                   editable={!isPending}
                   secureTextEntry={!passVisible}
-                  placeholderTextColor="gray"
+                  placeholderTextColor="black"
                   placeholder="🔑 Password"
-                  className="font-rubix-medium flex-1"
+                  className="text-sm font-rubik text-black-300 ml-2"
                   onChangeText={formik.handleChange("password")}
                   onBlur={formik.handleBlur("password")}
                   value={formik.values.password}
@@ -204,9 +208,9 @@ const Login = () => {
                 </TouchableOpacity>
               </View>
             </View>
-          </KeyboardAvoidingView>
-        </View>
-      </ScrollView>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

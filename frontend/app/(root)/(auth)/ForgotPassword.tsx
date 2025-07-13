@@ -1,9 +1,12 @@
 import images from "@/constants/images";
-// import { ForgotPasswordAPI } from '@/services/User/userServices'
+import { ForgotPasswordAPI } from "@/services/User/userServices";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 import { useFormik } from "formik";
 import React from "react";
 import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 import * as Yup from "yup";
 
 const validationSchema = Yup.object({
@@ -11,16 +14,11 @@ const validationSchema = Yup.object({
 });
 
 const ForgotPassword = () => {
-  // const {mutateAsync, isPending}  = useMutation({
-  //   mutationKey: ["forgotPassword"],
-  //   mutationFn: ForgotPasswordAPI,
-  // })
-
-  const isPending = false;
-
-  // const handleForgotPassword = () => {
-  //   formik.handleSubmit();
-  // };
+  const router = useRouter();
+  const { mutateAsync, isPending } = useMutation({
+    mutationKey: ["forgotPassword"],
+    mutationFn: ForgotPasswordAPI,
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -28,26 +26,31 @@ const ForgotPassword = () => {
     },
     validationSchema,
     onSubmit: (values) => {
-      // mutateAsync(values)
-      // .then((response)=> {
-      //   console.log("Forgot password response", response)
-      //   Toast.show({
-      //     type: "success",
-      //     text1: response.message,
-      //     text2: "Check your email for reset instructions"
-      //   })
-      //   formik.resetForm();
-      // })
-      // .catch((error)=> {
-      //   console.log("Forgot password error", error)
-      //   Toast.show({
-      //     type: "error",
-      //     text1: error.message,
-      //     text2: "Please try again"
-      //   })
-      // })
+      mutateAsync(values)
+        .then((response) => {
+          console.log("Forgot password response", response);
+          Toast.show({
+            type: "success",
+            text1: response.message,
+            text2: "Check your email for reset instructions",
+          });
+          formik.resetForm();
+          router.push("/ResetPassword");
+        })
+        .catch((error) => {
+          console.log("Forgot password error", error);
+          Toast.show({
+            type: "error",
+            text1: error.message,
+            text2: "Please try again",
+          });
+        });
     },
   });
+
+  const handleForgotPassword = () => {
+    formik.handleSubmit();
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -75,7 +78,10 @@ const ForgotPassword = () => {
           onBlur={formik.handleBlur("email")}
         />
 
-        <TouchableOpacity className="mt-5 py-4 bg-blue-950 w-full rounded-lg">
+        <TouchableOpacity
+          className="mt-5 py-4 bg-blue-950 w-full rounded-lg"
+          onPress={handleForgotPassword}
+        >
           <Text className="text-white text-center font-rubik-extrabold font-bold text-lg ">
             Continue
           </Text>

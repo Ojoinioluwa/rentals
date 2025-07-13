@@ -46,8 +46,6 @@ type MyPropertyQuery = {
 };
 
 
-
-
 // Create property
 export const createProperty = async (data: FormData) => {
     try {
@@ -127,7 +125,7 @@ export const getPropertyById = async (id: string) => {
 };
 
 // Update property
-export const updateProperty = async (id: string, updates: Partial<Property>) => {
+export const updateProperty = async ({ id, updates }: { id: string, updates: Partial<Property> }) => {
     try {
         const headers = await getAuthHeaders();
         const res = await axios.patch(`${BASE_URL}/properties/${id}`, updates, { headers });

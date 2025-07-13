@@ -201,7 +201,7 @@ const landlordController = {
     updateProperty: asyncHandler(async (req, res) => {
         const { id } = req.params;
 
-        // Find the property and ensure ownership
+        // 1. Ensure property exists and is owned by this landlord
         const property = await Property.findOne({ _id: id, landlord: req.user._id });
         if (!property) {
             return res.status(404).json({
@@ -210,45 +210,42 @@ const landlordController = {
             });
         }
 
-        // Whitelisted fields that are safe to update
-        const allowedFields = {
-            title: "string",
-            description: "string",
-            propertyType: "string",
-            bedrooms: "number",
-            bathrooms: "number",
-            toilets: "number",
-            furnished: "boolean",
-            price: "number",
-            billingCycle: "string",
-            features: "object", // expecting array
-            isAvailable: "boolean",
-            availableFrom: "string"
-        };
+        // 2. Destructure only allowed fields
+        const {
+            title,
+            description,
+            propertyType,
+            bedrooms,
+            bathrooms,
+            toilets,
+            furnished,
+            price,
+            billingCycle,
+            features,
+            isAvailable,
+            availableFrom,
+            caution
+        } = req.body;
 
-        for (const [field, expectedType] of Object.entries(allowedFields)) {
-            if (req.body.hasOwnProperty(field)) {
-                const value = req.body[field];
-
-                // Check for valid type, except for null which is allowed for optional fields
-                if (value !== null && typeof value !== expectedType) {
-                    return res.status(400).json({
-                        success: false,
-                        message: `Invalid type for field '${field}'. Expected ${expectedType}`
-                    });
-                }
-
-                // Special handling for price
-                if (field === "price") {
-                    property.price = value;
-                    property.fees.agency = value * 0.02;
-                } else {
-                    property[field] = value;
-                }
-            }
+        // 3. Direct assignment if value is provided
+        if (title !== undefined) property.title = title;
+        if (description !== undefined) property.description = description;
+        if (propertyType !== undefined) property.propertyType = propertyType;
+        if (bedrooms !== undefined) property.bedrooms = bedrooms;
+        if (bathrooms !== undefined) property.bathrooms = bathrooms;
+        if (toilets !== undefined) property.toilets = toilets;
+        if (furnished !== undefined) property.furnished = furnished;
+        if (price !== undefined) {
+            property.price = price;
+            property.fees.agency = price * 0.02;
         }
+        if (billingCycle !== undefined) property.billingCycle = billingCycle;
+        if (features !== undefined) property.features = features;
+        if (isAvailable !== undefined) property.isAvailable = isAvailable;
+        if (availableFrom !== undefined) property.availableFrom = new Date(availableFrom);
+        if (typeof caution === "number") property.fees.caution = caution;
 
-        // Save the updated property
+
         await property.save();
 
         res.status(200).json({

@@ -319,7 +319,7 @@ const PropertyDetailsScreen: React.FC = () => {
             entering={FadeInUp.delay(900).duration(600)}
             className="bg-white p-4 rounded-xl shadow-md mb-4"
           >
-            <View className="h-[200px] bg-green-100">
+            <View className="h-[250px] bg-green-100">
               <MapScreen
                 latitude={property?.location.coordinates.coordinates[1]}
                 longitude={property?.location.coordinates.coordinates[0]}

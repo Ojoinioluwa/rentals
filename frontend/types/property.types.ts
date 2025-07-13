@@ -99,6 +99,17 @@ export interface FormPickerProps {
     editable?: boolean;
 }
 
+export interface FormPickerPropertyProps {
+    label: string;
+    value: string;
+    onValueChange: (value: string, index: number) => void;
+    error?: string;
+    touched?: boolean;
+    options: string[];
+    icon?: React.ReactNode;
+    editable?: boolean;
+}
+
 export interface EditPropertyFormProps {
     propertyId: string;
 }

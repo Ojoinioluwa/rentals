@@ -186,6 +186,179 @@ const userController = {
         })
     }),
 
+    changePassword: asyncHandler(async (req, res) => {
+        const { password } = req.body;
+
+        if (!validator.isStrongPassword(password)) {
+            const passwordIssues = validatePassword(password);
+            if (passwordIssues.length > 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Password does not meet the required criteria',
+                    errors: passwordIssues
+                });
+            }
+        }
+
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User does not exist. could not update password"
+            })
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+
+        await user.save()
+        res.status(200).json({
+            success: true,
+            message: "Users password updated successfully",
+            user: {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+            }
+        })
+    }),
+
+    updateProfile: asyncHandler(async (req, res) => {
+        const { firstName, lastName, email, phoneNumber } = req.body;
+
+        if (email && !validator.isEmail(email)) {
+            res.status(400)
+            throw new Error("Enter a valid email format")
+        }
+
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        // Update only allowed fields
+        user.firstName = firstName || user.firstName;
+        user.lastName = lastName || user.lastName;
+        user.email = email || user.email;
+        user.phoneNumber = phoneNumber || user.phoneNumber;
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Profile updated successfully",
+            user: {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+            },
+        });
+    }),
+    // Forgot password - send reset code
+    forgotPassword: asyncHandler(async (req, res) => {
+        const { email } = req.body;
+
+        if (!email || !validator.isEmail(email)) {
+            res.status(400);
+            throw new Error("A valid email is required");
+        }
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            res.status(404);
+            throw new Error("No user found with this email");
+        }
+
+        if (!user.verified) {
+            res.status(403);
+            throw new Error("Please verify your email before requesting password reset.");
+        }
+
+
+        // Delete previous verification if it exists
+        await UserVerification.deleteMany({ userId: user._id });
+
+        // Send email with raw code
+        await sendMail({
+            _id: user._id,
+            email: user.email,
+            firstName: user.firstName,
+            type: 'forgot-password'
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "A reset code has been sent to your email."
+        });
+    }),
+
+    resetPassword: asyncHandler(async (req, res) => {
+        const { email, otp, newPassword } = req.body;
+
+        if (!email || !otp || !newPassword) {
+            res.status(400);
+            throw new Error("Email, verification code, and new password are required");
+        }
+
+        if (!validator.isEmail(email)) {
+            res.status(400);
+            throw new Error("Invalid email format");
+        }
+
+        if (!validator.isStrongPassword(newPassword)) {
+            const passwordIssues = validatePassword(newPassword);
+            return res.status(400).json({
+                success: false,
+                message: 'Password does not meet the required criteria',
+                errors: passwordIssues
+            });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            res.status(404);
+            throw new Error("No user found with this email");
+        }
+
+        const verificationRecord = await UserVerification.findOne({ userId: user._id });
+        if (!verificationRecord) {
+            res.status(400);
+            throw new Error("Verification code is invalid or has expired");
+        }
+
+        if (verificationRecord.expiresAt < new Date()) {
+            await UserVerification.findByIdAndDelete(verificationRecord._id);
+            res.status(400);
+            throw new Error("Verification code has expired. Please request a new one.");
+        }
+
+        const isMatch = await bcrypt.compare(otp, verificationRecord.verificationCode);
+        if (!isMatch) {
+            res.status(400);
+            throw new Error("Incorrect verification code");
+        }
+
+        // Hash and save new password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        await user.save();
+
+        // Delete the used verification record
+        await UserVerification.findByIdAndDelete(verificationRecord._id);
+
+        res.status(200).json({
+            success: true,
+            message: "Password has been reset successfully. You can now log in."
+        });
+    }),
+
+
+
 
 }
 

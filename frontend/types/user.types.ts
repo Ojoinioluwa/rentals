@@ -31,3 +31,11 @@ export type VerifyEmail = {
     email: string;
     verificationCode: string;
 }
+
+export type ForgotPasswordPayload = {
+    email: string;
+};
+
+export type ChangePasswordPayload = {
+    password: string;
+};

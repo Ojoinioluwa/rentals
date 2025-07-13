@@ -4,7 +4,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQuery } from "@tanstack/react-query"; // Import useQueryClient
 import { useRouter } from "expo-router"; // For navigation
 import React from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch } from "react-redux";
 
@@ -30,6 +37,7 @@ const ProfilePage: React.FC = () => {
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-gray-50">
+        <ActivityIndicator size="large" color="#0061FF" />
         <Text className="text-lg text-gray-600">Loading profile...</Text>
       </SafeAreaView>
     );

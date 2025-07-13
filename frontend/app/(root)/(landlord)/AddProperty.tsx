@@ -3,11 +3,13 @@ import {
   availableFeatures,
   FormInput,
   FormPicker,
+  FormPickerProperty,
   FormSwitch,
 } from "@/components/PropertyCard";
 import { AddPropertySchema } from "@/schemas/schemas";
 import { createProperty } from "@/services/landlord/landlordServices";
-import { QueryClient, useMutation } from "@tanstack/react-query";
+import { queryClient } from "@/utils/queryClient";
+import { useMutation } from "@tanstack/react-query";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useFormik } from "formik";
@@ -25,7 +27,6 @@ import Toast from "react-native-toast-message";
 
 const AddPropertyForm: React.FC = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const queryClient = new QueryClient();
   const router = useRouter();
 
   // Placeholder for useMutation
@@ -197,12 +198,10 @@ const AddPropertyForm: React.FC = () => {
             editable={!isPending}
             icon={<Text className="text-blue-600 text-lg">📝</Text>}
           />
-          <FormPicker
+          <FormPickerProperty
             label="Property Type"
-            placeholder="Select type (e.g., apartment)"
             value={formik.values.propertyType}
-            onChangeText={formik.handleChange("propertyType")}
-            onBlur={formik.handleBlur("propertyType")}
+            onValueChange={(val) => formik.setFieldValue("propertyType", val)}
             error={formik.errors.propertyType}
             touched={formik.touched.propertyType}
             options={[
@@ -217,6 +216,7 @@ const AddPropertyForm: React.FC = () => {
             editable={!isPending}
             icon={<Text className="text-blue-600 text-lg">🏡</Text>}
           />
+
           <FormInput
             label="Bedrooms"
             placeholder="Number of bedrooms"
@@ -285,12 +285,22 @@ const AddPropertyForm: React.FC = () => {
             editable={!isPending}
             icon={<Text className="text-blue-600 text-lg">₦</Text>}
           />
-          <FormPicker
+          {/* <FormPicker
             label="Billing Cycle"
             placeholder="Select cycle (e.g., yearly)"
             value={formik.values.billingCycle}
             onChangeText={formik.handleChange("billingCycle")}
             onBlur={formik.handleBlur("billingCycle")}
+            error={formik.errors.billingCycle}
+            touched={formik.touched.billingCycle}
+            options={["monthly", "yearly"]}
+            editable={!isPending}
+            icon={<Text className="text-blue-600 text-lg">🗓️</Text>}
+          /> */}
+          <FormPickerProperty
+            label="Billing Cycle"
+            value={formik.values.billingCycle}
+            onValueChange={(val) => formik.setFieldValue("billingCycle", val)}
             error={formik.errors.billingCycle}
             touched={formik.touched.billingCycle}
             options={["monthly", "yearly"]}

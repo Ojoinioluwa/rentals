@@ -5,9 +5,6 @@ import { ScrollView, Text, View } from "react-native";
 import { FadeInUp, Layout } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AnimatedView } from "../LandlordComponents/UploadImages";
-// import { useRouter } from 'expo-router'; // Uncomment if using Expo Router for navigation
-
-// Helper component for animated action cards
 
 const HomeScreen: React.FC = () => {
   const router = useRouter(); // Uncomment if using Expo Router
@@ -79,7 +76,7 @@ const HomeScreen: React.FC = () => {
             icon="❓"
             title="Help & Support"
             description="Get assistance or find answers to your questions."
-            onPress={() => console.log("Navigate to HelpAndSupportScreen")} // Placeholder
+            onPress={() => router.push("/HelpSupport")}
             delay={100}
           />
         </AnimatedView>

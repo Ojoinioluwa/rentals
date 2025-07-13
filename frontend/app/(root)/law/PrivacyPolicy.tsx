@@ -207,7 +207,7 @@ const PrivacyPolicyPage: React.FC = () => {
           please contact us at:
         </Text>
         <Text className="text-blue-600 text-base mb-4 leading-6 font-semibold">
-          Email: ojoinioluwa05@gmail.com
+          Email: support@gmail.com
         </Text>
         <Text className="text-gray-700 text-base mb-6 leading-6">
           Address: Ekiti, Nigeria
