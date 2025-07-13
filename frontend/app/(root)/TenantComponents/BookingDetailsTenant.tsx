@@ -142,9 +142,10 @@ const BookingDetailsScreen: React.FC = () => {
           entering={FadeInUp.delay(300).duration(600)}
           className="w-full h-72 bg-gray-200 relative"
         >
-          {booking.property.images && booking.property.images.length > 0 ? (
+          {booking?.property?.images && booking?.property.images.length > 0 ? (
             <>
               <Animated.Image
+                key={currentImageIndex}
                 source={{ uri: booking.property.images[currentImageIndex] }}
                 className="w-full h-full"
                 resizeMode="cover"

@@ -44,7 +44,6 @@ const propertyController = {
 
         const parsedLat = latitude ? parseFloat(latitude) : null;
         const parsedLng = longitude ? parseFloat(longitude) : null;
-        console.log(parsedLat, parsedLng)
 
         let properties = [];
         let total = 0;
@@ -112,7 +111,7 @@ const propertyController = {
     getProperty: asyncHandler(async (req, res) => {
         const { id } = req.params;
 
-        const property = await Property.findOne({ _id: id }).lean();
+        const property = await Property.findOne({ _id: id }).populate("landlord", "firstName email lastName").lean();
 
         if (!property) {
             return res.status(404).json({

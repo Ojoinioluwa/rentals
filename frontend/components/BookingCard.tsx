@@ -185,6 +185,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
   isProcessing,
 }) => {
   const scale = useSharedValue(1);
+  console.log(booking);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -218,15 +219,15 @@ export const BookingCard: React.FC<BookingCardProps> = ({
   return (
     <AnimatedView style={animatedStyle} className="w-full mb-4">
       <TouchableOpacity
-        onPress={() => onPress(booking._id)}
+        onPress={() => onPress(booking?._id)}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         activeOpacity={0.9}
         className="bg-white rounded-xl shadow-md overflow-hidden border border-blue-100"
       >
-        {booking.property.images && booking.property.images.length > 0 ? (
+        {booking?.property?.images && booking?.property?.images.length > 0 ? (
           <Image
-            source={{ uri: booking.property.images[0] }}
+            source={{ uri: booking?.property?.images[0] }}
             className="w-full h-40"
             resizeMode="cover"
             onError={(e) =>
@@ -240,10 +241,10 @@ export const BookingCard: React.FC<BookingCardProps> = ({
         )}
         <View className="p-4">
           <Text className="text-xl font-bold text-blue-800 mb-2">
-            {booking.property.title}
+            {booking?.property?.title}
           </Text>
           <Text className="text-gray-700 text-base mb-2" numberOfLines={2}>
-            {booking.property.description}
+            {booking?.property?.description}
           </Text>
 
           <View className="flex-row items-center justify-between mb-1">
@@ -260,21 +261,21 @@ export const BookingCard: React.FC<BookingCardProps> = ({
           <View className="flex-row items-center justify-between mb-1">
             <Text className="text-blue-600 font-semibold">Rent Start:</Text>
             <Text className="text-gray-700">
-              {new Date(booking.rentStart).toLocaleDateString()}
+              {new Date(booking?.rentStart).toLocaleDateString()}
             </Text>
           </View>
 
           <View className="flex-row items-center justify-between mb-2">
             <Text className="text-blue-600 font-semibold">Rent End:</Text>
             <Text className="text-gray-700">
-              {new Date(booking.rentEnd).toLocaleDateString()}
+              {new Date(booking?.rentEnd).toLocaleDateString()}
             </Text>
           </View>
 
-          {booking.message && (
+          {booking?.message && (
             <View className="mt-2 p-2 bg-blue-50 rounded-lg">
               <Text className="text-gray-600 text-sm italic" numberOfLines={2}>
-                &quot; {booking.message} &quot;
+                &quot; {booking?.message} &quot;
               </Text>
             </View>
           )}
@@ -282,7 +283,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
           {booking.status === "pending" && (
             <View className="flex-row justify-around mt-4">
               <TouchableOpacity
-                onPress={() => onCancel && onCancel(booking._id)}
+                onPress={() => onCancel && onCancel(booking?._id)}
                 className="bg-red-500 py-2 px-4 rounded-lg shadow-sm flex-1 mr-2"
                 disabled={isProcessing}
               >

@@ -91,6 +91,7 @@ const bookController = {
         }
 
 
+
         const bookings = await Booking.find(filter)
             .populate("property", "title description propertyType description images")
             .limit(limit)
