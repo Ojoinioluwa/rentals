@@ -149,13 +149,21 @@ const Login = () => {
                 <TextInput
                   editable={!isPending}
                   secureTextEntry={!passVisible}
-                  placeholderTextColor="black"
                   placeholder="🔑 Password"
-                  className="text-sm font-rubik text-black-300 ml-2"
+                  placeholderTextColor="black"
                   onChangeText={formik.handleChange("password")}
                   onBlur={formik.handleBlur("password")}
                   value={formik.values.password}
+                  style={{
+                    fontSize: 14,
+                    color: "#000",
+                    marginLeft: 8,
+                    backgroundColor: "#fff", // just to be safe
+                    padding: 10,
+                    borderRadius: 8,
+                  }}
                 />
+
                 <TouchableOpacity
                   onPress={() => setPassVisible(!passVisible)}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}

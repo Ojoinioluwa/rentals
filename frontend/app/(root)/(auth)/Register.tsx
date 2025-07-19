@@ -223,12 +223,21 @@ const Register = () => {
                   value={formik.values.password}
                   editable={!isPending}
                   secureTextEntry={!passVisible}
-                  placeholderTextColor="gray"
                   placeholder="🔑 Password"
-                  className="font-rubix-medium flex-1"
+                  placeholderTextColor="#888" // use hex for safety
                   onChangeText={formik.handleChange("password")}
                   onBlur={formik.handleBlur("password")}
+                  style={{
+                    flex: 1,
+                    color: "#000", // force black text
+                    fontSize: 16,
+                    paddingVertical: 12,
+                    paddingHorizontal: 10,
+                    backgroundColor: "#fff", // prevent invisible text issue
+                    borderRadius: 8,
+                  }}
                 />
+
                 <TouchableOpacity
                   onPress={() => setPassVisible(!passVisible)}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -252,12 +261,21 @@ const Register = () => {
                   value={formik.values.confirmPassword}
                   editable={!isPending}
                   secureTextEntry={!confirmPassVisible}
-                  placeholderTextColor="gray"
                   placeholder="🔑 Confirm password"
-                  className="font-rubix-medium flex-1"
+                  placeholderTextColor="#888"
                   onChangeText={formik.handleChange("confirmPassword")}
                   onBlur={formik.handleBlur("confirmPassword")}
+                  style={{
+                    flex: 1,
+                    color: "#000", // explicitly black
+                    fontSize: 16,
+                    paddingVertical: 12,
+                    paddingHorizontal: 10,
+                    backgroundColor: "#fff", // ensure contrast
+                    borderRadius: 8,
+                  }}
                 />
+
                 <TouchableOpacity
                   onPress={() => setConfirmPassVisible(!confirmPassVisible)}
                 >

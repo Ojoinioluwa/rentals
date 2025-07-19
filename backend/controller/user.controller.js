@@ -83,7 +83,7 @@ const userController = {
         if (user.expiresAt < new Date()) {
             await UserVerification.findByIdAndDelete(user._id)
             sendMail({
-                _id: req.user,
+                _id: userInfo._id,
                 email: userInfo.email,
                 firstName: userInfo.firstName
             })
