@@ -4,7 +4,7 @@
     "strict": true,
     "jsx": "react-native",
     "module": "node16",
-    "moduleResolution": "node16", // ✅ <- fix this line
+    "moduleResolution": "node16",
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "isolatedModules": true,

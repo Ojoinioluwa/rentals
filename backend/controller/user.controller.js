@@ -14,17 +14,17 @@ const validatePassword = require("../utils/passwordValidator");
 const userController = {
     // register the user 
     register: asyncHandler(async (req, res) => {
-        const { firstName, lastName, email, phoneNumber, password, role } = req.body
+        const { firstName, lastName, email, phoneNumber, password, role } = req.body;
+
+        console.log("--------------------------------7");
 
         if (!firstName || !lastName || !email || !phoneNumber || !password || !role) {
-            res.status(400)
-            throw new Error('All fields are requried');
+            return res.status(400).json({ success: false, message: 'All fields are required' });
         }
 
-
+        console.log("--------------------------------6");
         if (!validator.isEmail(email)) {
-            res.status(400)
-            throw new Error("Enter a valid email format")
+            return res.status(400).json({ success: false, message: 'Enter a valid email format' });
         }
 
         if (!validator.isStrongPassword(password)) {
@@ -38,14 +38,19 @@ const userController = {
             }
         }
 
-        const userExist = await User.findOne({ email }).lean()
+
+        console.log("--------------------------------5");
+
+        const userExist = await User.findOne({ email }).lean();
         if (userExist) {
-            res.status(401)
-            throw new Error("User Already exist, Login or make use of another email")
+            return res.status(409).json({ success: false, message: 'User already exists. Please log in.' });
         }
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
+
+
+        console.log("--------------------------------4");
 
         const user = await User.create({
             firstName,
@@ -54,21 +59,28 @@ const userController = {
             password: hashedPassword,
             phoneNumber,
             userType: role
-        })
+        });
 
-        await sendMail({
-            _id: user._id,
-            email: user.email,
-            firstName: user.firstName
-        })
-            .then((response) => {
-                res.status(200).json({ success: true, response })
-            })
-            .catch((err) => {
-                console.log(err);
-                throw new Error(err)
-            })
+
+        console.log("--------------------------------3");
+
+        try {
+            const response = await sendMail({
+                _id: user._id,
+                email: user.email,
+                firstName: user.firstName
+            });
+
+            console.log("--------------------------------2");
+            return res.status(200).json({ success: true, message: 'Registration successful. Verification email sent.', response });
+        } catch (err) {
+            console.error('Email send error:', err);
+
+            console.log("--------------------------------1");
+            return res.status(500).json({ success: false, message: 'User registered, but failed to send verification email.' });
+        }
     }),
+
 
     // verify the user
     verifyUser: asyncHandler(async (req, res) => {

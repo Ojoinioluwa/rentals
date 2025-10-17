@@ -61,10 +61,6 @@ const Register = () => {
     mutationFn: RegisterAPI,
   });
 
-  const handleRegister = () => {
-    formik.handleSubmit();
-  };
-
   const [passVisible, setPassVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
@@ -88,7 +84,7 @@ const Register = () => {
         .then((response) => {
           Toast.show({
             type: "success",
-            text1: response.message,
+            text1: response?.message || "Registration successful",
             text2: "Welcome to the app 👋",
           });
           router.replace("/VerifyEmail");
@@ -103,6 +99,10 @@ const Register = () => {
         });
     },
   });
+
+  const handleRegister = () => {
+    formik.handleSubmit();
+  };
 
   return (
     <SafeAreaView className="bg-gray-200 flex-1">
